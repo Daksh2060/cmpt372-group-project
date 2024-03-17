@@ -2,7 +2,7 @@
 const BusStopMap = () => {
   return(
     <div>
-        <h1>Placeholder</h1>
+        <h1>Placeholder MAP</h1>
     </div>
   )
 };
