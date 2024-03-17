@@ -1,3 +1,10 @@
 
+const BusStopMap = () => {
+  return(
+    <div>
+        <h1>Placeholder</h1>
+    </div>
+  )
+};
 
-const BusStopMap = () => 
+export default BusStopMap
