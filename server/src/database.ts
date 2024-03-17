@@ -20,9 +20,19 @@ const pool = new Pool();
 
 export async function initializeDatabase(): Promise<void>{
     try {
-        await pool.query(`CREATE TABLE IF NOT EXISTS temp (id SERIAL PRIMARY KEY)`);
+        const tables = [
+            `CREATE TABLE IF NOT EXISTS temp (id SERIAL PRIMARY KEY);`,
+            `CREATE TABLE IF NOT EXISTS routes (route_id INTEGER PRIMARY KEY, route_short_name VARCHAR(10), route_long_name VARCHAR(255));`,
+            `CREATE TABLE IF NOT EXISTS trips (trip_id INTEGER PRIMARY KEY, route_id INTEGER, service_id INTEGER, trip_headsign VARCHAR(255), direction_id INTEGER, block_id INTEGER);`,
+            `CREATE TABLE IF NOT EXISTS stops (stop_id INTEGER PRIMARY KEY, stop_code VARCHAR(10), stop_name VARCHAR(255), stop_lat DOUBLE PRECISION, stop_lon DOUBLE PRECISION);`,
+            `CREATE TABLE IF NOT EXISTS times (time_id BIGSERIAL PRIMARY KEY, trip_id INTEGER, stop_id INTEGER, arrival_time INTEGER, departure_time INTEGER, stop_sequence INTEGER);`,
+            `CREATE INDEX IF NOT EXISTS trips_bull ON trips(route_id, service_id, trip_headsign, direction_id, block_id);`,
+            `CREATE INDEX IF NOT EXISTS stops_bull ON stops(stop_code, stop_name, stop_lat, stop_lon);`,
+            `CREATE INDEX IF NOT EXISTS times_bull ON times(trip_id, stop_id, arrival_time, departure_time, stop_sequence);`
+        ];
+        await Promise.all(tables.map((value) => pool.query(value)));
         console.log("Database initialized");
-    } 
+    }
     catch (error){
         console.error("Error initializing database:", error);
     }
@@ -40,10 +50,6 @@ export function databaseErrorHandler<ReqParams = Record<string, any>, _ = any, R
 }
 
 export const helpers = {
-    test: async () => {
-        const data = await pool.query<{id: number}, [number]>("SELECT * FROM temp WHERE id = $1", [0]);
-        return data.rows;
-    },
     getRoutes: async (search: string) => {
         const values = [`%${search}%`];
         const query = `SELECT route_id, route_short_name, route_long_name FROM routes WHERE route_short_name LIKE $1`;
