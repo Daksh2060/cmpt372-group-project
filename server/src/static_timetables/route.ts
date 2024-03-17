@@ -6,12 +6,6 @@ type RouteSearchQuery = {
     service: string;
     direction: string;
 };
-type TimesSearchQuery = RouteSearchQuery & {
-    start: string;
-    end: string;
-    time?: string;
-    results?: string;
-};
 type TimesSearchBody = {
     service: number;
     direction: number;
