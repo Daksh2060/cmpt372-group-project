@@ -27,3 +27,20 @@ export interface TripData{
     arrival_time: number;
     departure_time: number;
 }
+
+export interface StopTimesOptions{
+    route_short_name: string;
+    service_id: number;
+    direction_id: number;
+    startStop: string;
+    endStop: string;
+    afterTime: number;
+    maxResultCount: number;
+}
+
+export interface StopTimesData{
+    trip_id: number;
+    trip_headsign: string;
+    arrival_time: number;
+    departure_time: number;
+}
