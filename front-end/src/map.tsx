@@ -8,6 +8,7 @@ import "leaflet.markercluster/dist/leaflet.markercluster-src.js";
 import "leaflet.markercluster/src/MarkerCluster.js";
 import "leaflet.markercluster/src/MarkerCluster.Spiderfier.js";
 import "leaflet.markercluster/src/MarkerCluster.QuickHull.js";
+import "./App.css";
 
 const MapComponent: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -48,7 +49,10 @@ const MapComponent: React.FC = () => {
         rows.forEach((row) => {
           const [stop_id, stop_code, stop_name, stop_lat, stop_lon] =
             row.split(",");
-          if (stop_name!.toLowerCase().includes(searchTerm.toLowerCase())) {
+          if (
+            stop_name &&
+            stop_name.toLowerCase().includes(searchTerm.toLowerCase())
+          ) {
             markers.addLayer(
               L.marker([parseFloat(stop_lat), parseFloat(stop_lon)]).bindPopup(
                 `<b>${stop_name}</b><br/><a href="">Bus Timetable</a>`
@@ -72,16 +76,16 @@ const MapComponent: React.FC = () => {
 
   return (
     <div>
+      <div
+        ref={mapContainer}
+        style={{ height: "850px", width: "1650px", margin: "auto" }}
+      ></div>
       <input
         type="text"
         value={searchTerm}
         onChange={handleSearch}
         placeholder="Search for a bus stop..."
       />
-      <div
-        ref={mapContainer}
-        style={{ height: "850px", width: "1650px", margin: "auto" }}
-      ></div>
     </div>
   );
 };
