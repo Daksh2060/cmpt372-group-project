@@ -7,6 +7,7 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster/dist/leaflet.markercluster-src.js";
 import "leaflet.markercluster/src/MarkerCluster.js";
 import "leaflet.markercluster/src/MarkerCluster.Spiderfier.js";
+import "leaflet.markercluster/src/MarkerCluster.QuickHull.js";
 
 const MapComponent = () => {
   useEffect(() => {
@@ -21,7 +22,7 @@ const MapComponent = () => {
 
     var map = L.map("map", {
       preferCanvas: true,
-    }).setView([49.19, -122.78], 11);
+    }).setView([49.2, -122.92], 11);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
@@ -50,7 +51,7 @@ const MapComponent = () => {
           ] = row.split(",");
           markers.addLayer(
             L.marker([parseFloat(stop_lat), parseFloat(stop_lon)]).bindPopup(
-              `<b>${stop_name}</b>`
+              `<b>${stop_name}</b><br/><a href="">Stop Schedule</a>`
             )
           );
         });
