@@ -4,14 +4,28 @@ import {Empty} from "../types";
 
 type RouteSearchQuery = {
     service: string;
+    date: string;
     direction: string;
 };
 type TimesSearchBody = {
     service: number;
+    date: string;
     direction: number;
     start: string;
     end: string;
     prevTimes: number[];
+}
+
+function readDate(dateString: string, defaultDate: Date): string{
+    const t = defaultDate;
+    const offset = t.getTimezoneOffset();// This gives UTC time so subtract time zone offset from it to get local time
+    t.setMinutes(t.getMinutes() - offset);
+    let serviceDate = t.toISOString().split("T")[0];
+
+    if (typeof dateString === "string" && dateString.match(/\d{4}-[01]\d-[0-3]\d/) && dateString.length === 10){
+        serviceDate = dateString;
+    }
+    return serviceDate;
 }
 
 const router = express.Router();
@@ -40,9 +54,8 @@ router.get("/routes/:route", databaseErrorHandler<{route: string}>(async (req, r
 router.get("/routes/:route/stops", databaseErrorHandler<{route: string}, Empty, Empty, RouteSearchQuery>(async (req, res) => {
     const routeName = req.params.route;
     const service = parseInt(req.query.service);
+    const date = req.query.date;
     const direction = parseInt(req.query.direction);
-    // For now, service is a number, later change it so the database gets which service numbers match which days of the week
-    // This only works for MF, Sat, and Sun schedules. It does not work for exceptions.
     if (typeof routeName !== "string"){
         return res.status(400).send("Invalid route name.");
     }
@@ -52,13 +65,16 @@ router.get("/routes/:route/stops", databaseErrorHandler<{route: string}, Empty, 
         }
     }
 
-    const results = await helpers.getStops(routeName, service, direction);
+    const serviceDate = readDate(date, new Date());
+
+    const results = await helpers.getStops(routeName, service, serviceDate, direction);
     return res.json(results);
 }));
 
 router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty, TimesSearchBody>(async (req, res) => {
     const routeName = req.params.route;
     const service = req.body.service;
+    const date = req.body.date;
     const direction = req.body.direction;
     const startStop = req.body.start;
     const endStop = req.body.end;
@@ -83,6 +99,8 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
     // If the user does not pass in this array, it will use the current time as the default start time
     const t = new Date();
     let prevTimes: number[] = [t.getHours() * 3600 + t.getMinutes() * 60 + t.getSeconds()];
+    const serviceDate = readDate(date, t);
+
     if (Array.isArray(req.body.prevTimes) && req.body.prevTimes.length >= 1){
         prevTimes = req.body.prevTimes.filter((value) => typeof value === "number");
     }
@@ -90,6 +108,7 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
     const results = await helpers.getStopTimes({
         route_short_name: routeName,
         service_id: service,
+        service_date: serviceDate,
         direction_id: direction,
         startStop: startStop,
         endStop: endStop,

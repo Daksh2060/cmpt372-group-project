@@ -31,6 +31,7 @@ export interface TripData{
 export interface StopTimesOptions{
     route_short_name: string;
     service_id: number;
+    service_date: string;
     direction_id: number;
     startStop: string;
     endStop: string;
