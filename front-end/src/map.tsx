@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import Mapdata from "./stops.txt";
@@ -9,62 +9,81 @@ import "leaflet.markercluster/src/MarkerCluster.js";
 import "leaflet.markercluster/src/MarkerCluster.Spiderfier.js";
 import "leaflet.markercluster/src/MarkerCluster.QuickHull.js";
 
-const MapComponent = () => {
+const MapComponent: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [map, setMap] = useState<L.Map | null>(null);
+  const mapContainer = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const mapContainer = document.getElementById("map");
+    if (!mapContainer.current) return;
 
-    if (!mapContainer) {
-      console.error("Problem loading map");
-      return;
-    }
-
-    mapContainer.innerHTML = "";
-
-    var map = L.map("map", {
+    const leafletMap = L.map(mapContainer.current, {
       preferCanvas: true,
     }).setView([49.2, -122.92], 11);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
         'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> ',
-    }).addTo(map);
+    }).addTo(leafletMap);
 
-    map.setMinZoom(11);
-    map.setMaxZoom(17);
+    leafletMap.setMinZoom(11);
+    leafletMap.setMaxZoom(17);
 
-    var markers = L.markerClusterGroup();
+    setMap(leafletMap);
+
+    return () => {
+      leafletMap.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!map) return;
+
+    const markers = L.markerClusterGroup();
 
     fetch(Mapdata)
       .then((response) => response.text())
       .then((text) => {
         const rows = text.split("\n");
         rows.forEach((row) => {
-          const [
-            stop_id,
-            stop_code,
-            stop_name,
-            stop_lat,
-            stop_lon,
-            ex,
-            ex2,
-            ex3,
-          ] = row.split(",");
-          markers.addLayer(
-            L.marker([parseFloat(stop_lat), parseFloat(stop_lon)]).bindPopup(
-              `<b>${stop_name}</b><br/><a href="">Stop Schedule</a>`
-            )
-          );
+          const [stop_id, stop_code, stop_name, stop_lat, stop_lon] =
+            row.split(",");
+          if (stop_name!.toLowerCase().includes(searchTerm.toLowerCase())) {
+            markers.addLayer(
+              L.marker([parseFloat(stop_lat), parseFloat(stop_lon)]).bindPopup(
+                `<b>${stop_name}</b><br/><a href="">Bus Timetable</a>`
+              )
+            );
+          }
         });
       })
       .catch((error) => console.error("Error fetching data:", error));
 
     map.addLayer(markers);
-    return () => {
-      map.remove();
-    };
-  }, []);
 
-  return <div id="map" style={{ height: "850px", width: "1650px" }}></div>;
+    return () => {
+      map.removeLayer(markers);
+    };
+  }, [map, searchTerm]);
+
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={handleSearch}
+        placeholder="Search for a bus stop..."
+      />
+      <div
+        ref={mapContainer}
+        style={{ height: "850px", width: "1650px", margin: "auto" }}
+      ></div>
+    </div>
+  );
 };
 
 export default MapComponent;
