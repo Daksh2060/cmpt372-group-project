@@ -89,11 +89,31 @@ export const helpers = {
     },
     getStopTimes: async (options: StopTimesOptions) => {
         const values = Object.values(options);
-        if (values.length !== 7){
+        if (values.length !== 8){
             throw new Error("Incorrect number of options given.");
         }
         const query = `
         WITH trip_times AS (
+            SELECT trips.trip_id, trips.trip_headsign, times.arrival_time, times.departure_time
+            FROM routes, trips, stops, times
+            WHERE routes.route_id = trips.route_id AND trips.trip_id = times.trip_id AND stops.stop_id = times.stop_id AND
+                routes.route_short_name = $1 AND (trips.service_id = $2 OR trips.service_id IN (SELECT service_number FROM service WHERE service_date = $3)) AND
+                trips.direction_id = $4 AND (stops.stop_code = $5 OR stops.stop_code = $6) AND times.departure_time >= $7
+        ),
+        valid_trips AS (
+            SELECT trip_id, MIN(departure_time) AS start_time
+            FROM trip_times
+            GROUP BY (trip_id) HAVING COUNT(*) = 2 ORDER BY start_time LIMIT $8
+        )
+        SELECT valid_trips.trip_id, trip_times.trip_headsign, trip_times.arrival_time, trip_times.departure_time
+        FROM trip_times, valid_trips
+        WHERE valid_trips.trip_id = trip_times.trip_id ORDER BY trip_times.trip_id, trip_times.departure_time;`;
+        return (await pool.query<StopTimesData>(query, values)).rows;
+    }
+};
+
+/*
+WITH trip_times AS (
             SELECT trips.trip_id, trips.trip_headsign, times.arrival_time, times.departure_time
             FROM routes, trips, stops, times
             WHERE routes.route_id = trips.route_id AND trips.trip_id = times.trip_id AND stops.stop_id = times.stop_id AND
@@ -107,6 +127,5 @@ export const helpers = {
         SELECT valid_trips.trip_id, trip_times.trip_headsign, trip_times.arrival_time, trip_times.departure_time
         FROM trip_times, valid_trips
         WHERE valid_trips.trip_id = trip_times.trip_id ORDER BY trip_times.trip_id, trip_times.departure_time;`;
-        return (await pool.query<StopTimesData>(query, values)).rows;
-    }
-};
+*/
+

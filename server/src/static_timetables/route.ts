@@ -8,6 +8,7 @@ type RouteSearchQuery = {
 };
 type TimesSearchBody = {
     service: number;
+    date: string;
     direction: number;
     start: string;
     end: string;
@@ -59,6 +60,7 @@ router.get("/routes/:route/stops", databaseErrorHandler<{route: string}, Empty, 
 router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty, TimesSearchBody>(async (req, res) => {
     const routeName = req.params.route;
     const service = req.body.service;
+    const date = req.body.date;
     const direction = req.body.direction;
     const startStop = req.body.start;
     const endStop = req.body.end;
@@ -83,13 +85,21 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
     // If the user does not pass in this array, it will use the current time as the default start time
     const t = new Date();
     let prevTimes: number[] = [t.getHours() * 3600 + t.getMinutes() * 60 + t.getSeconds()];
+    const offset = t.getTimezoneOffset();// This gives UTC time so subtract time zone offset from it to get local time
+    t.setMinutes(t.getMinutes() - offset);
+    let serviceDate = t.toISOString().split("T")[0];
+
     if (Array.isArray(req.body.prevTimes) && req.body.prevTimes.length >= 1){
         prevTimes = req.body.prevTimes.filter((value) => typeof value === "number");
+    }
+    if (typeof date === "string" && date.match(/\d{4}-[01]\d-[0-3]\d/)){
+        serviceDate = date;
     }
 
     const results = await helpers.getStopTimes({
         route_short_name: routeName,
         service_id: service,
+        service_date: serviceDate,
         direction_id: direction,
         startStop: startStop,
         endStop: endStop,
