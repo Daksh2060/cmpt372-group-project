@@ -2,6 +2,11 @@ import { useEffect } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import Mapdata from "./stops.txt";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+import "leaflet.markercluster/dist/leaflet.markercluster-src.js";
+import "leaflet.markercluster/src/MarkerCluster.js";
+import "leaflet.markercluster/src/MarkerCluster.Spiderfier.js";
 
 const MapComponent = () => {
   useEffect(() => {
@@ -26,6 +31,8 @@ const MapComponent = () => {
     map.setMinZoom(11);
     map.setMaxZoom(17);
 
+    var markers = L.markerClusterGroup();
+
     fetch(Mapdata)
       .then((response) => response.text())
       .then((text) => {
@@ -41,15 +48,16 @@ const MapComponent = () => {
             ex2,
             ex3,
           ] = row.split(",");
-          const circleMarker = L.circleMarker([
-            parseFloat(stop_lat),
-            parseFloat(stop_lon),
-          ]).addTo(map);
-          circleMarker.bindPopup(`<b>${stop_name}</b>`);
+          markers.addLayer(
+            L.marker([parseFloat(stop_lat), parseFloat(stop_lon)]).bindPopup(
+              `<b>${stop_name}</b>`
+            )
+          );
         });
       })
       .catch((error) => console.error("Error fetching data:", error));
 
+    map.addLayer(markers);
     return () => {
       map.remove();
     };
