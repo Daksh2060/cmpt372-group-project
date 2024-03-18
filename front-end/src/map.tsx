@@ -14,9 +14,9 @@ const MapComponent = () => {
 
     mapContainer.innerHTML = "";
 
-    var map = L.map('map', {
-      preferCanvas: true
-  }).setView([49.19, -122.78], 11);
+    var map = L.map("map", {
+      preferCanvas: true,
+    }).setView([49.19, -122.78], 11);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
@@ -24,15 +24,23 @@ const MapComponent = () => {
     }).addTo(map);
 
     map.setMinZoom(11);
-    map.setMaxZoom(18);
+    map.setMaxZoom(17);
 
     fetch(Mapdata)
       .then((response) => response.text())
       .then((text) => {
         const rows = text.split("\n");
         rows.forEach((row) => {
-          const [stop_id, stop_code, stop_name, stop_lat, stop_lon, ex, ex2, ex3] =
-            row.split(",");
+          const [
+            stop_id,
+            stop_code,
+            stop_name,
+            stop_lat,
+            stop_lon,
+            ex,
+            ex2,
+            ex3,
+          ] = row.split(",");
           const circleMarker = L.circleMarker([
             parseFloat(stop_lat),
             parseFloat(stop_lon),
@@ -51,4 +59,3 @@ const MapComponent = () => {
 };
 
 export default MapComponent;
-
