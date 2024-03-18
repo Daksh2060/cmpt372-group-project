@@ -40,6 +40,12 @@ const MapComponent: React.FC = () => {
   useEffect(() => {
     if (!map) return;
 
+    const leafletIcon = L.icon({
+      iconUrl:
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Canberra_Bus_icon.svg/2048px-Canberra_Bus_icon.svg.png",
+      iconSize: [30, 30],
+    });
+
     const markers = L.markerClusterGroup();
 
     fetch(Mapdata)
@@ -54,7 +60,9 @@ const MapComponent: React.FC = () => {
             stop_name.toLowerCase().includes(searchTerm.toLowerCase())
           ) {
             markers.addLayer(
-              L.marker([parseFloat(stop_lat), parseFloat(stop_lon)]).bindPopup(
+              L.marker([parseFloat(stop_lat), parseFloat(stop_lon)], {
+                icon: leafletIcon,
+              }).bindPopup(
                 `<b>${stop_name}</b><br/><a href="">Bus Timetable</a>`
               )
             );
@@ -84,7 +92,7 @@ const MapComponent: React.FC = () => {
         type="text"
         value={searchTerm}
         onChange={handleSearch}
-        placeholder="Search for a bus stop..."
+        placeholder="Filter stops by name..."
       />
     </div>
   );
