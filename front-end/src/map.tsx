@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import Mapdata from "./stops.txt";
@@ -14,6 +15,7 @@ const MapComponent = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [map, setMap] = useState<L.Map | null>(null);
   const mapContainer = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -53,19 +55,32 @@ const MapComponent = () => {
       .then((text) => {
         const rows = text.split("\n");
         rows.forEach((row) => {
-          const [_stop_id, _stop_code, stop_name, stop_lat, stop_lon] =
+          const [_stop_id, stop_code, stop_name, stop_lat, stop_lon] =
             row.split(",");
           if (
             stop_name &&
             stop_name.toLowerCase().includes(searchTerm.toLowerCase())
           ) {
-            markers.addLayer(
-              L.marker([parseFloat(stop_lat), parseFloat(stop_lon)], {
+            const marker = L.marker(
+              [parseFloat(stop_lat), parseFloat(stop_lon)],
+              {
                 icon: leafletIcon,
-              }).bindPopup(
-                `<b>${stop_name}</b><br/><a href="">Bus Timetable</a>`
-              )
+              }
+            ).bindPopup(
+              `<b>${stop_name}</b><br/><a href="">Bus Timetable</a>`
             );
+            marker.on("popupopen", () => {
+              const linkElement = document.querySelector(
+                ".leaflet-popup-content a"
+              );
+              if (linkElement) {
+                linkElement.addEventListener("click", () => {
+                  const stopCode = encodeURIComponent(stop_code);
+                  navigate(`/schedule/${stopCode}`);
+                });
+              }
+            });
+            markers.addLayer(marker);
           }
         });
       })
@@ -81,7 +96,7 @@ const MapComponent = () => {
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
- //Setup temp css and class names later
+  //Setup temp css and class names later
   return (
     <div>
       <div
