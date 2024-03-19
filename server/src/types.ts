@@ -79,3 +79,11 @@ export type RTTIData = {
         LastUpdate: string;
     }[];
 }[];
+
+export interface RealTimeEstimate{
+    route_short_name: string;
+    expectedStart: number;
+    actualStart: number;
+    endTime: number;
+    realTimeActive: boolean;
+}
