@@ -5,7 +5,7 @@ import MapComponent from "./map.tsx";
 import HomePage from "./home.tsx";
 import LiveTimetable from "./timetable_live.tsx";
 import StaticTimetable from "./timetable_static.tsx";
-import StopSchedule from "./stop-schedule.tsx";
+import StopSchedule from "./stop_schedule.tsx";
 
 function App() {
   return (
