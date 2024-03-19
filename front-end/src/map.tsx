@@ -10,7 +10,7 @@ import "leaflet.markercluster/src/MarkerCluster.Spiderfier.js";
 import "leaflet.markercluster/src/MarkerCluster.QuickHull.js";
 import "./App.css";
 
-const MapComponent: React.FC = () => {
+const MapComponent = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [map, setMap] = useState<L.Map | null>(null);
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -53,7 +53,7 @@ const MapComponent: React.FC = () => {
       .then((text) => {
         const rows = text.split("\n");
         rows.forEach((row) => {
-          const [stop_id, stop_code, stop_name, stop_lat, stop_lon] =
+          const [_stop_id, _stop_code, stop_name, stop_lat, stop_lon] =
             row.split(",");
           if (
             stop_name &&
@@ -81,7 +81,7 @@ const MapComponent: React.FC = () => {
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
-
+ //Setup temp css and class names later
   return (
     <div>
       <div
