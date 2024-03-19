@@ -5,6 +5,7 @@ import MapComponent from "./map.tsx";
 import HomePage from "./home.tsx";
 import LiveTimetable from "./timetable_live.tsx";
 import StaticTimetable from "./timetable_static.tsx";
+import StopSchedule from "./stop-schedule.tsx";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Route path="/map" element={<MapComponent />}></Route>
             <Route path="/live" element={<LiveTimetable />}></Route>
             <Route path="/static" element={<StaticTimetable />}></Route>
+            <Route path="/schedule/:stopCode" element={<StopSchedule />}></Route>
           </Routes>
         </div>
       </div>
