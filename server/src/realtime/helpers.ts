@@ -1,13 +1,18 @@
 import {UserRoute, RTTIData, StopTimesData, RealTimeEstimate} from "../types";
 import {queries} from "../database";
 
+let apiKey = "";
+if (process.env["APIKEY"] !== undefined){
+    apiKey = process.env["APIKEY"];
+}
+
 const RTTITest: RTTIData = [{"RouteNo":"129","RouteName":"PATTERSONSTN/HOLDOMSTN","Direction":"EAST","RouteMap":{"Href":"https://nb.translink.ca/geodata/129.kmz"},"Schedules":[{"Pattern":"EB1","Destination":"HOLDOMSTN","ExpectedLeaveTime":"8:01pm2024-03-18","ExpectedCountdown":10,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:50:38pm"},{"Pattern":"EB1","Destination":"HOLDOMSTN","ExpectedLeaveTime":"8:24pm2024-03-18","ExpectedCountdown":33,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:01:20pm"},{"Pattern":"EB1","Destination":"HOLDOMSTN","ExpectedLeaveTime":"8:53pm2024-03-18","ExpectedCountdown":62,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:31:02pm"},{"Pattern":"EB1","Destination":"HOLDOMSTN","ExpectedLeaveTime":"9:21pm2024-03-18","ExpectedCountdown":90,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"10:05:03pm"}]},{"RouteNo":"130","RouteName":"METROTOWN/PENDER/KOOTENAY","Direction":"SOUTH","RouteMap":{"Href":"https://nb.translink.ca/geodata/130.kmz"},"Schedules":[{"Pattern":"S1","Destination":"WILLINGDON/TOMETROTOWNSTN","ExpectedLeaveTime":"7:52pm 2024-03-18","ExpectedCountdown":1,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:50:58pm"},{"Pattern":"S2B","Destination":"WILLINGDON/TOMETROTOWNSTN","ExpectedLeaveTime":"8:05pm 2024-03-18","ExpectedCountdown":14,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"06:59:19pm"},{"Pattern":"S1","Destination":"WILLINGDON/TOMETROTOWNSTN","ExpectedLeaveTime":"8:33pm 2024-03-18","ExpectedCountdown":42,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:18:25pm"},{"Pattern":"S2B","Destination":"WILLINGDON/TOMETROTOWNSTN","ExpectedLeaveTime":"8:37pm 2024-03-18","ExpectedCountdown":46,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:32:19pm"},{"Pattern":"S1","Destination":"WILLINGDON/TOMETROTOWNSTN","ExpectedLeaveTime":"9:02pm 2024-03-18","ExpectedCountdown":71,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:48:18pm"},{"Pattern":"S2B","Destination":"WILLINGDON/TOMETROTOWNSTN","ExpectedLeaveTime":"9:08pm 2024-03-18","ExpectedCountdown":77,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"10:05:03pm"}]},{"RouteNo":"131","RouteName":"HASTINGSATGILMORE/KOOTENAYLOOP","Direction":"WEST","RouteMap":{"Href":"https://nb.translink.ca/geodata/131.kmz"},"Schedules":[{"Pattern":"WB1","Destination":"KOOTENAYLOOP","ExpectedLeaveTime":"8:08pm2024-03-18","ExpectedCountdown":17,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:03:26pm"},{"Pattern":"WB1","Destination":"KOOTENAYLOOP","ExpectedLeaveTime":"9:03pm2024-03-18","ExpectedCountdown":72,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"09:05:03pm"}]},{"RouteNo":"132","RouteName":"CAPITOLHILL/HASTINGSATGILMORE","Direction":"NORTH","RouteMap":{"Href":"https://nb.translink.ca/geodata/132.kmz"},"Schedules":[{"Pattern":"NB1","Destination":"CAPITOLHILL","ExpectedLeaveTime":"8:45pm2024-03-18","ExpectedCountdown":54,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:43:03pm"},{"Pattern":"NB1","Destination":"CAPITOLHILL","ExpectedLeaveTime":"9:45pm2024-03-18","ExpectedCountdown":114,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"10:05:03pm"}]},{"RouteNo":"160","RouteName":"PORTCOQUITLAMSTN/KOOTENAYLOOP","Direction":"EAST","RouteMap":{"Href":"https://nb.translink.ca/geodata/160.kmz"},"Schedules":[{"Pattern":"E1","Destination":"PTCOQSTN","ExpectedLeaveTime":"7:59pm2024-03-18","ExpectedCountdown":8,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"06:55:17pm"},{"Pattern":"E1","Destination":"PTCOQSTN","ExpectedLeaveTime":"8:13pm2024-03-18","ExpectedCountdown":22,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:10:29pm"},{"Pattern":"E1","Destination":"PTCOQSTN","ExpectedLeaveTime":"8:28pm2024-03-18","ExpectedCountdown":37,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:25:16pm"},{"Pattern":"E1","Destination":"PTCOQSTN","ExpectedLeaveTime":"8:43pm2024-03-18","ExpectedCountdown":52,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:40:59pm"},{"Pattern":"E1","Destination":"PTCOQSTN","ExpectedLeaveTime":"8:58pm2024-03-18","ExpectedCountdown":67,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"09:05:03pm"},{"Pattern":"E1","Destination":"PTCOQSTN","ExpectedLeaveTime":"9:13pm2024-03-18","ExpectedCountdown":82,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"10:05:03pm"}]},{"RouteNo":"R5","RouteName":"HASTINGSST","Direction":"EAST","RouteMap":{"Href":"https://nb.translink.ca/geodata/R5.kmz"},"Schedules":[{"Pattern":"E1","Destination":"HASTINGSST/TOSFUEXCHANGE","ExpectedLeaveTime":"7:59pm2024-03-18","ExpectedCountdown":8,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:50:11pm"},{"Pattern":"E1","Destination":"HASTINGSST/TOSFUEXCHANGE","ExpectedLeaveTime":"8:10pm2024-03-18","ExpectedCountdown":19,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:49:35pm"},{"Pattern":"E1","Destination":"HASTINGSST/TOSFUEXCHANGE","ExpectedLeaveTime":"8:23pm2024-03-18","ExpectedCountdown":32,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"06:59:06pm"},{"Pattern":"E1","Destination":"HASTINGSST/TOSFUEXCHANGE","ExpectedLeaveTime":"8:38pm2024-03-18","ExpectedCountdown":47,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:14:33pm"},{"Pattern":"E1","Destination":"HASTINGSST/TOSFUEXCHANGE","ExpectedLeaveTime":"8:53pm2024-03-18","ExpectedCountdown":62,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:29:38pm"},{"Pattern":"E1","Destination":"HASTINGSST/TOSFUEXCHANGE","ExpectedLeaveTime":"9:08pm2024-03-18","ExpectedCountdown":77,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:44:20pm"}]}];
 
 function getTravelDuration(data: StopTimesData[], startTime: number): [number, number]{
     const times: [number, number][] = [];
     for (let x = 0; x < data.length; x += 2){
         if (data[x].trip_id === data[x + 1].trip_id && data[x].departure_time >= startTime){
-            times.push([data[x].departure_time, data[x + 1].arrival_time]);
+            times.push([data[x].departure_time % 86400, data[x + 1].arrival_time % 86400]);
         }
     }
     if (times.length === 0){
@@ -46,33 +51,39 @@ function parseTime(time: string): number{
     return result;
 }
 
-async function fetchRTTIEstimate(minStartTime: number, route_short_name: string): Promise<number>{
+async function fetchRTTIEstimate(minStartTime: number, route_short_name: string, stop_code: string): Promise<number>{
     if (parseInt(route_short_name) >= 990){
         // Assume skytrain is always on time (it sometimes isn't but there is no real-time available for skytrain)
         return minStartTime;
     }
-    // More options added later
-    // Get data from fetch ...
-    route_short_name = "130";
-    const data = await Promise.resolve(RTTITest);// Change to actual data later
+
+    if (apiKey === ""){
+        throw new Error("No API key found.");
+    }
+
+    const options: RequestInit = {method: "GET", headers: {"Content-Type": "application/JSON", "Accept": "application/JSON"}};
+    const res = await fetch(`https://api.translink.ca/RTTIAPI/V1/stops/${stop_code}/estimates?apiKey=${apiKey}&TimeFrame=180`, options);
+    if (!res.ok){
+        throw new Error("Error fetching from the Translink API.");
+    }
+
+    //route_short_name = "130";
+    const data: RTTIData = await res.json();
+    //for (let x = 0; x < data.length; x++){console.log(data[x].Schedules);}
+    //const data1 = await Promise.resolve(RTTITest);// Change to actual data later
 
     const route = data.find((value) => value.RouteNo === route_short_name);
-    if (route === undefined){
-        throw new Error("Could not find route.");
-    }
-    if (route.Schedules.length === 0){
-        throw new Error("No more departures for this day.");
+    if (route === undefined || route.Schedules.length === 0){
+        throw new Error("Could not find route. There may be no more departures from this stop for today.");
     }
 
-    const timeStrings = route.Schedules.map((value) => parseTime(value.ExpectedLeaveTime)).filter((value) => value >= minStartTime).sort();
-    if (timeStrings.length === 0){
+    const times = route.Schedules.map((value) => parseTime(value.ExpectedLeaveTime)).filter((value) => value >= minStartTime).sort((a, b) => a - b);
+    if (times.length === 0){
         throw new Error("Trip is too far in advance to use real-time data.");
     }
 
-    // return timeStrings[0];
-    //console.log(timeStrings);
-
-    return minStartTime;
+    return times[0];
+    //return minStartTime;
 }
 
 /*
@@ -108,17 +119,18 @@ export async function getRealTimeEstimate(routes: UserRoute): Promise<RealTimeEs
 
     for (let x = 0; x < routes.length; x++){
         const r = routes[x];
-        // This is whether the real-time data is available and valid. If not, the user will be notified that static data is being used in place of real-time data
-        let valid = true;
+        // This is whether the real-time data is available and valid. If not, the user will be notified that static data is being used in place of real-time data by setting this value to the appropriate message
+        let validMessage = "";
         // This stores the actual start time, given the real-time data
         let actualTime = expectedTime;
         let transferTime = 0;
 
         try{
             // If RTTI is successful, set actual time to the estimate from the data
-            actualTime = await fetchRTTIEstimate(expectedTime, r.route_short_name);
+            actualTime = await fetchRTTIEstimate(expectedTime, r.route_short_name, r.startStop);
         } catch (error){
-            valid = false;
+            const e = error as Error;
+            validMessage = e.message;
         }
 
         // The duration calculation should use the actual time, not expected time. If RTTI failed then actual time will be the same as expected time.
@@ -141,7 +153,7 @@ export async function getRealTimeEstimate(routes: UserRoute): Promise<RealTimeEs
 
         // If the real-time failed, use static data instead by setting the first trip after the expected time as the "actual time" estimate
         // (When real-time is successful, the time returned by the real-time api is used instead)
-        if (valid === false){
+        if (validMessage !== ""){
             actualTime = start;
         }
 
@@ -154,7 +166,7 @@ export async function getRealTimeEstimate(routes: UserRoute): Promise<RealTimeEs
             expectedStart: expectedTime,
             actualStart: actualTime,
             endTime: actualTime + duration,
-            realTimeActive: valid
+            realTimeMessage: validMessage
         });
 
         // Set the new expected time to the arrival time of this current route + any transfer time set by the user

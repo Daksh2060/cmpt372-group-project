@@ -82,5 +82,5 @@ export interface RealTimeEstimate{
     expectedStart: number;
     actualStart: number;
     endTime: number;
-    realTimeActive: boolean;
+    realTimeMessage: string;
 }
