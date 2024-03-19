@@ -122,5 +122,10 @@ export const queries = {
             throw new Error("Error getting stop times.");
         }
         return rows;
+    },
+    getAllStops: async () => {
+        const query = `
+        SELECT stop_code, stop_name, stop_lat, stop_lon FROM stops WHERE stop_code IS NOT NULL;`;
+        return (await pool.query<TripData>(query)).rows;
     }
 };

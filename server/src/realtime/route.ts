@@ -29,7 +29,7 @@ router.post("/realtime/estimates", databaseErrorHandler<Empty, Empty, RealTimeEs
     const estimate = await getRealTimeEstimate(route);
 
     if (estimate.length === 0){
-        return res.status(500).send("Could not get real-time estimates.");
+        return res.status(404).send("Could not get real-time estimates. There may not be enough trips left in the day.");
     }
 
     return res.json(estimate);

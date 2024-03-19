@@ -148,4 +148,12 @@ router.get("/trips/:trip", databaseErrorHandler<{trip: string}>(async (req, res)
     return res.json(trip);
 }));
 
+router.get("/stops", databaseErrorHandler(async (req, res) => {
+    const stops = await queries.getAllStops();
+
+    // Filter out skytrain and west coast express
+    const filtered = stops.filter((value) => value.stop_name.match(/@ Platform \d+/) === null && value.stop_name.match(/Station (?:West|East)bound/) === null);
+    res.json(filtered);
+}));
+
 export default router;
