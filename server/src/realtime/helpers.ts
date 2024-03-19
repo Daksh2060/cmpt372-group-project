@@ -6,12 +6,14 @@ if (process.env["APIKEY"] !== undefined){
     apiKey = process.env["APIKEY"];
 }
 
+const timeMatch = new RegExp(/((?:[1-9])|(?:1[0-2])):([0-5]\d)([apx]m)/);
+
 const RTTITest: RTTIData = [{"RouteNo":"129","RouteName":"PATTERSONSTN/HOLDOMSTN","Direction":"EAST","RouteMap":{"Href":"https://nb.translink.ca/geodata/129.kmz"},"Schedules":[{"Pattern":"EB1","Destination":"HOLDOMSTN","ExpectedLeaveTime":"8:01pm2024-03-18","ExpectedCountdown":10,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:50:38pm"},{"Pattern":"EB1","Destination":"HOLDOMSTN","ExpectedLeaveTime":"8:24pm2024-03-18","ExpectedCountdown":33,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:01:20pm"},{"Pattern":"EB1","Destination":"HOLDOMSTN","ExpectedLeaveTime":"8:53pm2024-03-18","ExpectedCountdown":62,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:31:02pm"},{"Pattern":"EB1","Destination":"HOLDOMSTN","ExpectedLeaveTime":"9:21pm2024-03-18","ExpectedCountdown":90,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"10:05:03pm"}]},{"RouteNo":"130","RouteName":"METROTOWN/PENDER/KOOTENAY","Direction":"SOUTH","RouteMap":{"Href":"https://nb.translink.ca/geodata/130.kmz"},"Schedules":[{"Pattern":"S1","Destination":"WILLINGDON/TOMETROTOWNSTN","ExpectedLeaveTime":"7:52pm 2024-03-18","ExpectedCountdown":1,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:50:58pm"},{"Pattern":"S2B","Destination":"WILLINGDON/TOMETROTOWNSTN","ExpectedLeaveTime":"8:05pm 2024-03-18","ExpectedCountdown":14,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"06:59:19pm"},{"Pattern":"S1","Destination":"WILLINGDON/TOMETROTOWNSTN","ExpectedLeaveTime":"8:33pm 2024-03-18","ExpectedCountdown":42,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:18:25pm"},{"Pattern":"S2B","Destination":"WILLINGDON/TOMETROTOWNSTN","ExpectedLeaveTime":"8:37pm 2024-03-18","ExpectedCountdown":46,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:32:19pm"},{"Pattern":"S1","Destination":"WILLINGDON/TOMETROTOWNSTN","ExpectedLeaveTime":"9:02pm 2024-03-18","ExpectedCountdown":71,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:48:18pm"},{"Pattern":"S2B","Destination":"WILLINGDON/TOMETROTOWNSTN","ExpectedLeaveTime":"9:08pm 2024-03-18","ExpectedCountdown":77,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"10:05:03pm"}]},{"RouteNo":"131","RouteName":"HASTINGSATGILMORE/KOOTENAYLOOP","Direction":"WEST","RouteMap":{"Href":"https://nb.translink.ca/geodata/131.kmz"},"Schedules":[{"Pattern":"WB1","Destination":"KOOTENAYLOOP","ExpectedLeaveTime":"8:08pm2024-03-18","ExpectedCountdown":17,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:03:26pm"},{"Pattern":"WB1","Destination":"KOOTENAYLOOP","ExpectedLeaveTime":"9:03pm2024-03-18","ExpectedCountdown":72,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"09:05:03pm"}]},{"RouteNo":"132","RouteName":"CAPITOLHILL/HASTINGSATGILMORE","Direction":"NORTH","RouteMap":{"Href":"https://nb.translink.ca/geodata/132.kmz"},"Schedules":[{"Pattern":"NB1","Destination":"CAPITOLHILL","ExpectedLeaveTime":"8:45pm2024-03-18","ExpectedCountdown":54,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:43:03pm"},{"Pattern":"NB1","Destination":"CAPITOLHILL","ExpectedLeaveTime":"9:45pm2024-03-18","ExpectedCountdown":114,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"10:05:03pm"}]},{"RouteNo":"160","RouteName":"PORTCOQUITLAMSTN/KOOTENAYLOOP","Direction":"EAST","RouteMap":{"Href":"https://nb.translink.ca/geodata/160.kmz"},"Schedules":[{"Pattern":"E1","Destination":"PTCOQSTN","ExpectedLeaveTime":"7:59pm2024-03-18","ExpectedCountdown":8,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"06:55:17pm"},{"Pattern":"E1","Destination":"PTCOQSTN","ExpectedLeaveTime":"8:13pm2024-03-18","ExpectedCountdown":22,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:10:29pm"},{"Pattern":"E1","Destination":"PTCOQSTN","ExpectedLeaveTime":"8:28pm2024-03-18","ExpectedCountdown":37,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:25:16pm"},{"Pattern":"E1","Destination":"PTCOQSTN","ExpectedLeaveTime":"8:43pm2024-03-18","ExpectedCountdown":52,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:40:59pm"},{"Pattern":"E1","Destination":"PTCOQSTN","ExpectedLeaveTime":"8:58pm2024-03-18","ExpectedCountdown":67,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"09:05:03pm"},{"Pattern":"E1","Destination":"PTCOQSTN","ExpectedLeaveTime":"9:13pm2024-03-18","ExpectedCountdown":82,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"10:05:03pm"}]},{"RouteNo":"R5","RouteName":"HASTINGSST","Direction":"EAST","RouteMap":{"Href":"https://nb.translink.ca/geodata/R5.kmz"},"Schedules":[{"Pattern":"E1","Destination":"HASTINGSST/TOSFUEXCHANGE","ExpectedLeaveTime":"7:59pm2024-03-18","ExpectedCountdown":8,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:50:11pm"},{"Pattern":"E1","Destination":"HASTINGSST/TOSFUEXCHANGE","ExpectedLeaveTime":"8:10pm2024-03-18","ExpectedCountdown":19,"ScheduleStatus":"-","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:49:35pm"},{"Pattern":"E1","Destination":"HASTINGSST/TOSFUEXCHANGE","ExpectedLeaveTime":"8:23pm2024-03-18","ExpectedCountdown":32,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"06:59:06pm"},{"Pattern":"E1","Destination":"HASTINGSST/TOSFUEXCHANGE","ExpectedLeaveTime":"8:38pm2024-03-18","ExpectedCountdown":47,"ScheduleStatus":"*","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:14:33pm"},{"Pattern":"E1","Destination":"HASTINGSST/TOSFUEXCHANGE","ExpectedLeaveTime":"8:53pm2024-03-18","ExpectedCountdown":62,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:29:38pm"},{"Pattern":"E1","Destination":"HASTINGSST/TOSFUEXCHANGE","ExpectedLeaveTime":"9:08pm2024-03-18","ExpectedCountdown":77,"ScheduleStatus":"","CancelledTrip":false,"CancelledStop":false,"AddedTrip":false,"AddedStop":false,"LastUpdate":"07:44:20pm"}]}];
 
 function getTravelDuration(data: StopTimesData[], startTime: number): [number, number]{
     const times: [number, number][] = [];
     for (let x = 0; x < data.length; x += 2){
-        if (data[x].trip_id === data[x + 1].trip_id && data[x].departure_time >= startTime){
+        if (data[x].trip_id === data[x + 1].trip_id){
             times.push([data[x].departure_time % 86400, data[x + 1].arrival_time % 86400]);
         }
     }
@@ -19,12 +21,13 @@ function getTravelDuration(data: StopTimesData[], startTime: number): [number, n
         return [-1, -1];
     }
 
-    times.sort((a, b) => a[0] - b[0]);
+    // Get times for all buses that leave the stop and sort by closest to the start time. The closest to start time will be used as the estimate for the travel duration.
+    times.sort((a, b) => (Math.abs(a[0] - startTime) - Math.abs(b[0] - startTime)));
     return times[0];
 }
 
 function parseTime(time: string): number{
-    const match = time.match(/((?:[1-9])|(?:1[0-2])):([0-5]\d)([apx]m)/);
+    const match = time.match(timeMatch);
     if (match === null){
         return -1;
     }
@@ -110,7 +113,7 @@ export async function getRealTimeEstimate(routes: UserRoute): Promise<RealTimeEs
         serviceNumber = 2;
     }
 
-    // This stores the expected start time in each iteration of the loop
+    // This stores the expected start time in each iteration of the loop: the time that the previous route is expected to finish at
     let expectedTime = t.getHours() * 3600 + t.getMinutes() * 60 + t.getSeconds();
     t.setMinutes(t.getMinutes() - t.getTimezoneOffset());
     const serviceDate = t.toISOString().split("T")[0];
@@ -141,8 +144,7 @@ export async function getRealTimeEstimate(routes: UserRoute): Promise<RealTimeEs
             direction_id: r.direction_id,
             startStop: r.startStop,
             endStop: r.endStop,
-            afterTime: actualTime,
-            maxResultCount: 69420
+            afterTime: 0
         });
 
         const [start, end] = getTravelDuration(times, actualTime);

@@ -94,8 +94,8 @@ export const queries = {
         WHERE times.trip_id = $1 AND stops.stop_id = times.stop_id ORDER BY times.stop_sequence;`;
         return (await pool.query<TripData>(query, values)).rows;
     },
-    getStopTimes: async (options: StopTimesOptions) => {
-        const values = Object.values(options);
+    getStopTimes: async (options: StopTimesOptions, maxResultCount: number = 69420) => {
+        const values = Object.values(options).concat(maxResultCount);
         if (values.length !== 8){
             throw new Error("Incorrect number of options given.");
         }

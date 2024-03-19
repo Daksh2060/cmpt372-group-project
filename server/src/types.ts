@@ -37,7 +37,6 @@ export interface StopTimesOptions{
     startStop: string;
     endStop: string;
     afterTime: number;
-    maxResultCount: number;
 }
 
 export interface StopTimesData{

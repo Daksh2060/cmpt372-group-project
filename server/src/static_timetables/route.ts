@@ -15,6 +15,9 @@ type TimesSearchBody = {
     prevTimes: number[];
 }
 
+const skytrainMatch = new RegExp(/@ Platform \d+/);
+const wceMatch = new RegExp(/Station (?:West|East)bound/);
+
 const router = express.Router();
 
 router.get("/routes", databaseErrorHandler<Empty, Empty, Empty, {route: string}>(async (req, res) => {
@@ -92,8 +95,7 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
         direction_id: direction,
         startStop: startStop,
         endStop: endStop,
-        afterTime: prevTimes[0],
-        maxResultCount: 69420
+        afterTime: prevTimes[0]
     });
     if (results.length === 0){
         // No results mean one of the search options was incorrect
@@ -152,7 +154,7 @@ router.get("/stops", databaseErrorHandler(async (req, res) => {
     const stops = await queries.getAllStops();
 
     // Filter out skytrain and west coast express
-    const filtered = stops.filter((value) => value.stop_name.match(/@ Platform \d+/) === null && value.stop_name.match(/Station (?:West|East)bound/) === null);
+    const filtered = stops.filter((value) => value.stop_name.match(skytrainMatch) === null && value.stop_name.match(wceMatch) === null);
     res.json(filtered);
 }));
 
