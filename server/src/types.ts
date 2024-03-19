@@ -52,6 +52,7 @@ export interface UserRoute{
     startTime: number;
     transfers: {
         route_short_name: string;
+        direction_id: number;
         startStop: string;
         endStop: string;
         transferTime?: number;
