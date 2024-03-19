@@ -167,9 +167,9 @@ const testData: UserRoute = [
         transferTime: 0
     }
 ];
-getRealTimeEstimate(testData);
-const X = new Date();
-console.log(X.getHours());
+//getRealTimeEstimate(testData);
+//const X = new Date();
+//console.log(X.getHours());
 //getTimesFromRTTI(RTTITest, "130");
 
 //queries.getStopTimes({route_short_name: "210", service_id: 1, service_date: "2024-04-02", direction_id: 0, startStop: "50433", endStop: "61269", afterTime: 15*3600, maxResultCount: 69420}).then((value) => console.log(getTravelDuration(value, 15*3600)));
