@@ -49,6 +49,10 @@ function parseTime(time: string): number{
 }
 
 async function fetchRTTIEstimate(minStartTime: number, route_short_name: string): Promise<number>{
+    if (parseInt(route_short_name) >= 990){
+        // Assume skytrain is always on time (it sometimes isn't but there is no real-time available for skytrain)
+        return minStartTime;
+    }
     // More options added later
     // Get data from fetch ...
     route_short_name = "130";
@@ -87,16 +91,21 @@ Real-time estimate example
 4. Return arrival time
 */
 export async function getRealTimeEstimate(routes: UserRoute): Promise<RealTimeEstimate[]>{
+    const t = new Date();
     // This stores the expected start time in each iteration of the loop
-    let expectedTime = routes.startTime;
+    let expectedTime = 54000;//t.getHours() * 3600 + t.getMinutes() * 60 + t.getSeconds()
+    t.setMinutes(t.getMinutes() - t.getTimezoneOffset());
+    const serviceDate = t.toISOString().split("T")[0];
+    
     const estimates: RealTimeEstimate[] = [];
 
-    for (let x = 0; x < routes.transfers.length; x++){
-        const r = routes.transfers[x];
+    for (let x = 0; x < routes.length; x++){
+        const r = routes[x];
         // This is whether the real-time data is available and valid. If not, the user will be notified that static data is being used in place of real-time data
         let valid = true;
         // This stores the actual start time, given the real-time data
         let actualTime = expectedTime;
+        let transferTime = 0;
 
         try{
             // If RTTI is successful, set actual time to the estimate from the data
@@ -122,6 +131,10 @@ export async function getRealTimeEstimate(routes: UserRoute): Promise<RealTimeEs
             return [];
         }
 
+        if (typeof r.transferTime === "number" && r.transferTime > 0){
+            transferTime = r.transferTime;
+        }
+
         estimates.push({
             route_short_name: r.route_short_name,
             expectedStart: expectedTime,
@@ -130,34 +143,33 @@ export async function getRealTimeEstimate(routes: UserRoute): Promise<RealTimeEs
             realTimeActive: valid
         });
 
-        // Set the new expected time to the arrival time of this current route
-        expectedTime = actualTime + duration;
+        // Set the new expected time to the arrival time of this current route + any transfer time set by the user
+        expectedTime = actualTime + duration + transferTime;
     }
 
     console.log(estimates);
     return estimates;
 }
 
-const testData: UserRoute = {
-    startTime: 15*3600,
-    transfers: [
-        {
-            route_short_name: "210",
-            direction_id: 0,
-            startStop: "50438",
-            endStop: "61269",
-            transferTime: 0
-        },
-        {
-            route_short_name: "240",
-            direction_id: 1,
-            startStop: "54014",
-            endStop: "61563",
-            transferTime: 0
-        }
-    ]
-};
+const testData: UserRoute = [
+    {
+        route_short_name: "210",
+        direction_id: 0,
+        startStop: "50438",
+        endStop: "61269",
+        transferTime: 0
+    },
+    {
+        route_short_name: "240",
+        direction_id: 1,
+        startStop: "54014",
+        endStop: "61563",
+        transferTime: 0
+    }
+];
 getRealTimeEstimate(testData);
+const X = new Date();
+console.log(X.getHours());
 //getTimesFromRTTI(RTTITest, "130");
 
 //queries.getStopTimes({route_short_name: "210", service_id: 1, service_date: "2024-04-02", direction_id: 0, startStop: "50433", endStop: "61269", afterTime: 15*3600, maxResultCount: 69420}).then((value) => console.log(getTravelDuration(value, 15*3600)));

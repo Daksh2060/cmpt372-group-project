@@ -48,16 +48,13 @@ export interface StopTimesData{
 }
 
 // Types for the real-time route finder
-export interface UserRoute{
-    startTime: number;
-    transfers: {
-        route_short_name: string;
-        direction_id: number;
-        startStop: string;
-        endStop: string;
-        transferTime?: number;
-    }[];
-}
+export type UserRoute = {
+    route_short_name: string;
+    direction_id: number;
+    startStop: string;
+    endStop: string;
+    transferTime?: number;
+}[];
 
 export type RTTIData = {
     RouteNo: string;
