@@ -5,6 +5,7 @@ import "dotenv/config";
 
 import {initializeDatabase} from "./database";
 import staticTimetables from "./static_timetables/route";
+import realTime from "./realtime/route";
 
 const app = express();
 app.disable("x-powered-by");
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(staticTimetables);
+app.use(realTime);
 
 app.get("/", (req, res) => {
     // This is just for testing
