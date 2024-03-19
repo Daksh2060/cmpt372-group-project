@@ -1,5 +1,5 @@
 import express from "express";
-import {databaseErrorHandler, helpers} from "../database";
+import {databaseErrorHandler, queries} from "../database";
 import {readDate} from "./helpers";
 import {Empty} from "../types";
 
@@ -23,7 +23,7 @@ router.get("/routes", databaseErrorHandler<Empty, Empty, Empty, {route: string}>
         return res.json([]);
     }
 
-    const results = await helpers.getRoutes(search);
+    const results = await queries.getRoutes(search);
     const routes = results.map((value) => ({name: value.route_short_name, destinations: value.route_long_name}));
     return res.json(routes);
 }));
@@ -34,7 +34,7 @@ router.get("/routes/:route", databaseErrorHandler<{route: string}>(async (req, r
         return res.status(400).send("Invalid route name.");
     }
 
-    const results = await helpers.getRouteDirections(routeName);
+    const results = await queries.getRouteDirections(routeName);
     return res.json(results);
 }));
 
@@ -51,7 +51,7 @@ router.get("/routes/:route/stops", databaseErrorHandler<{route: string}, Empty, 
 
     const [serviceDate, service] = readDate(date, new Date());
 
-    const results = await helpers.getStops(routeName, service, serviceDate, direction);
+    const results = await queries.getStops(routeName, service, serviceDate, direction);
     return res.json(results);
 }));
 
@@ -85,7 +85,7 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
         prevTimes = req.body.prevTimes.filter((value) => typeof value === "number");
     }
 
-    const results = await helpers.getStopTimes({
+    const results = await queries.getStopTimes({
         route_short_name: routeName,
         service_id: service,
         service_date: serviceDate,
@@ -98,10 +98,6 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
     if (results.length === 0){
         // No results mean one of the search options was incorrect
         return res.status(404).send("No stop times matched the search options.");
-    }
-    if (results.length % 2 !== 0){
-        // The query results should have two elements for each trip so if the length is not even, there was an error somewhere
-        return res.status(500).send("Error getting stop times.");
     }
 
     // Group results by trip id and set the start time to the departure time from the start stop and end time to the arrival time from the end stop
@@ -143,7 +139,7 @@ router.get("/trips/:trip", databaseErrorHandler<{trip: string}>(async (req, res)
         return res.status(400).send("Invalid trip ID.");
     }
 
-    const trip = await helpers.getTrip(tripid);
+    const trip = await queries.getTrip(tripid);
 
     if (trip.length === 0){
         return res.status(404).send("Trip not found.");

@@ -51,7 +51,7 @@ export function databaseErrorHandler<ReqParams = Record<string, any>, _ = any, R
     }
 }
 
-export const helpers = {
+export const queries = {
     getRoutes: async (search: string) => {
         const values = [`%${search}%`];
         const query = `SELECT route_id, route_short_name, route_long_name FROM routes WHERE route_short_name LIKE $1`;
@@ -111,6 +111,12 @@ export const helpers = {
         SELECT valid_trips.trip_id, trip_times.trip_headsign, trip_times.arrival_time, trip_times.departure_time
         FROM trip_times, valid_trips
         WHERE valid_trips.trip_id = trip_times.trip_id ORDER BY trip_times.trip_id, trip_times.departure_time;`;
-        return (await pool.query<StopTimesData>(query, values)).rows;
+        const rows = (await pool.query<StopTimesData>(query, values)).rows;
+
+        if (rows.length % 2 !== 0){
+            // The query results should have two elements for each trip so if the length is not even, there was an error somewhere
+            throw new Error("Error getting stop times.");
+        }
+        return rows;
     }
 };

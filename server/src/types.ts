@@ -55,7 +55,7 @@ export interface UserRoute{
         startStop: string;
         endStop: string;
         transferTime?: number;
-    };     
+    }[];
 }
 
 export type RTTIData = {
