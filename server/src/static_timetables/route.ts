@@ -1,5 +1,6 @@
 import express from "express";
 import {databaseErrorHandler, helpers} from "../database";
+import {readDate} from "./helpers";
 import {Empty} from "../types";
 
 type RouteSearchQuery = {
@@ -12,35 +13,6 @@ type TimesSearchBody = {
     start: string;
     end: string;
     prevTimes: number[];
-}
-
-const dateMatch = new RegExp(/\d{4}-(?:(?:1[0-2])|(?:0[1-9]))-(?:(?:0[1-9])|(?:[1-2]\d)|(?:3[0-1]))/);
-
-function readDate(dateString: string, defaultDate: Date): [string, number]{
-    let serviceDate = "2024-01-01";
-    let serviceNumber = 1;
-
-    let weekday = 1;
-
-    if (typeof dateString === "string" && dateString.match(dateMatch) && dateString.length === 10){
-        serviceDate = dateString;
-        const t = new Date(serviceDate);
-        t.setMinutes(t.getMinutes() + t.getTimezoneOffset());
-        weekday = t.getDay();
-    } else{
-        const t = new Date(defaultDate);
-        weekday = t.getDay();// This converts UTC to local time so get the weekday before changing the minutes
-        t.setMinutes(t.getMinutes() - t.getTimezoneOffset());// This gives UTC time so subtract time zone offset from it to get local time
-        serviceDate = t.toISOString().split("T")[0];
-    }
-
-    if (weekday === 0){
-        serviceNumber = 3;
-    } else if (weekday === 6){
-        serviceNumber = 2;
-    }
-    
-    return [serviceDate, serviceNumber];
 }
 
 const router = express.Router();

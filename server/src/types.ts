@@ -1,5 +1,6 @@
 export type Empty = Record<string, never>;
 
+// Types for the static timetable viewer
 export interface RouteData{
     route_id: number;
     route_short_name: string;
@@ -45,3 +46,35 @@ export interface StopTimesData{
     arrival_time: number;
     departure_time: number;
 }
+
+// Types for the real-time route finder
+export interface UserRoute{
+    startTime: number;
+    transfers: {
+        route_short_name: string;
+        startStop: string;
+        endStop: string;
+        transferTime?: number;
+    };     
+}
+
+export type RTTIData = {
+    RouteNo: string;
+    RouteName: string;
+    Direction: string;
+    RouteMap: {
+        Href: string;
+    };
+    Schedules: {
+        Pattern: string;
+        Destination: string;
+        ExpectedLeaveTime: string;
+        ExpectedCountdown: number;
+        ScheduleStatus: string;
+        CancelledTrip: boolean;
+        CancelledStop: boolean;
+        AddedTrip: boolean;
+        AddedStop: boolean;
+        LastUpdate: string;
+    };
+}[];
