@@ -26,9 +26,11 @@ export async function initializeDatabase(): Promise<void>{
             `CREATE TABLE IF NOT EXISTS trips (trip_id INTEGER PRIMARY KEY, route_id INTEGER, service_id INTEGER, trip_headsign VARCHAR(255), direction_id INTEGER, block_id INTEGER);`,
             `CREATE TABLE IF NOT EXISTS stops (stop_id INTEGER PRIMARY KEY, stop_code VARCHAR(10), stop_name VARCHAR(255), stop_lat DOUBLE PRECISION, stop_lon DOUBLE PRECISION);`,
             `CREATE TABLE IF NOT EXISTS times (time_id BIGSERIAL PRIMARY KEY, trip_id INTEGER, stop_id INTEGER, arrival_time INTEGER, departure_time INTEGER, stop_sequence INTEGER);`,
+            `CREATE TABLE IF NOT EXISTS service (service_id BIGSERIAL PRIMARY KEY, service_number INTEGER, service_date DATE);`,
             `CREATE INDEX IF NOT EXISTS trips_bull ON trips(route_id, service_id, trip_headsign, direction_id, block_id);`,
             `CREATE INDEX IF NOT EXISTS stops_bull ON stops(stop_code, stop_name, stop_lat, stop_lon);`,
-            `CREATE INDEX IF NOT EXISTS times_bull ON times(trip_id, stop_id, arrival_time, departure_time, stop_sequence);`
+            `CREATE INDEX IF NOT EXISTS times_bull ON times(trip_id, stop_id, arrival_time, departure_time, stop_sequence);`,
+            `CREATE INDEX IF NOT EXISTS service_bull ON service(service_number, service_date)`
         ];
         await Promise.all(tables.map((value) => pool.query(value)));
         console.log("Database initialized");

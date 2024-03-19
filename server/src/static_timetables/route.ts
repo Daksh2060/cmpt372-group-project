@@ -3,12 +3,10 @@ import {databaseErrorHandler, helpers} from "../database";
 import {Empty} from "../types";
 
 type RouteSearchQuery = {
-    service: string;
     date: string;
     direction: string;
 };
 type TimesSearchBody = {
-    service: number;
     date: string;
     direction: number;
     start: string;
@@ -16,16 +14,33 @@ type TimesSearchBody = {
     prevTimes: number[];
 }
 
-function readDate(dateString: string, defaultDate: Date): string{
-    const t = defaultDate;
-    const offset = t.getTimezoneOffset();// This gives UTC time so subtract time zone offset from it to get local time
-    t.setMinutes(t.getMinutes() - offset);
-    let serviceDate = t.toISOString().split("T")[0];
+const dateMatch = new RegExp(/\d{4}-(?:(?:1[0-2])|(?:0[1-9]))-(?:(?:0[1-9])|(?:[1-2]\d)|(?:3[0-1]))/);
 
-    if (typeof dateString === "string" && dateString.match(/\d{4}-[01]\d-[0-3]\d/) && dateString.length === 10){
+function readDate(dateString: string, defaultDate: Date): [string, number]{
+    let serviceDate = "2024-01-01";
+    let serviceNumber = 1;
+
+    let weekday = 1;
+
+    if (typeof dateString === "string" && dateString.match(dateMatch) && dateString.length === 10){
         serviceDate = dateString;
+        const t = new Date(serviceDate);
+        t.setMinutes(t.getMinutes() + t.getTimezoneOffset());
+        weekday = t.getDay();
+    } else{
+        const t = new Date(defaultDate);
+        weekday = t.getDay();// This converts UTC to local time so get the weekday before changing the minutes
+        t.setMinutes(t.getMinutes() - t.getTimezoneOffset());// This gives UTC time so subtract time zone offset from it to get local time
+        serviceDate = t.toISOString().split("T")[0];
     }
-    return serviceDate;
+
+    if (weekday === 0){
+        serviceNumber = 3;
+    } else if (weekday === 6){
+        serviceNumber = 2;
+    }
+    
+    return [serviceDate, serviceNumber];
 }
 
 const router = express.Router();
@@ -53,19 +68,16 @@ router.get("/routes/:route", databaseErrorHandler<{route: string}>(async (req, r
 
 router.get("/routes/:route/stops", databaseErrorHandler<{route: string}, Empty, Empty, RouteSearchQuery>(async (req, res) => {
     const routeName = req.params.route;
-    const service = parseInt(req.query.service);
     const date = req.query.date;
     const direction = parseInt(req.query.direction);
     if (typeof routeName !== "string"){
         return res.status(400).send("Invalid route name.");
     }
-    for (const x of [service, direction]){
-        if (isNaN(x)){
-            return res.status(400).send("Invalid search options provided.");
-        }
+    if (isNaN(direction)){
+        return res.status(400).send("Invalid direction provided.");
     }
 
-    const serviceDate = readDate(date, new Date());
+    const [serviceDate, service] = readDate(date, new Date());
 
     const results = await helpers.getStops(routeName, service, serviceDate, direction);
     return res.json(results);
@@ -73,7 +85,6 @@ router.get("/routes/:route/stops", databaseErrorHandler<{route: string}, Empty, 
 
 router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty, TimesSearchBody>(async (req, res) => {
     const routeName = req.params.route;
-    const service = req.body.service;
     const date = req.body.date;
     const direction = req.body.direction;
     const startStop = req.body.start;
@@ -81,10 +92,8 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
     if (typeof routeName !== "string"){
         return res.status(400).send("Invalid route name.");
     }
-    for (const x of [service, direction]){
-        if (isNaN(x)){
-            return res.status(400).send("Invalid search options provided.");
-        }
+    if (isNaN(direction)){
+        return res.status(400).send("Invalid direction.");
     }
     // startStop and endStop are both different stop codes
     if (typeof startStop !== "string" || typeof endStop !== "string"){
@@ -99,8 +108,7 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
     // If the user does not pass in this array, it will use the current time as the default start time
     const t = new Date();
     let prevTimes: number[] = [t.getHours() * 3600 + t.getMinutes() * 60 + t.getSeconds()];
-    const serviceDate = readDate(date, t);
-
+    const [serviceDate, service] = readDate(date, t);
     if (Array.isArray(req.body.prevTimes) && req.body.prevTimes.length >= 1){
         prevTimes = req.body.prevTimes.filter((value) => typeof value === "number");
     }
