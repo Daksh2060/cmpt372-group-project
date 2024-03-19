@@ -77,5 +77,5 @@ export type RTTIData = {
         AddedTrip: boolean;
         AddedStop: boolean;
         LastUpdate: string;
-    };
+    }[];
 }[];
