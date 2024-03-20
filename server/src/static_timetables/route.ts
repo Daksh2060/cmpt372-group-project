@@ -21,9 +21,9 @@ const wceMatch = new RegExp(/Station (?:West|East)bound/);
 const router = express.Router();
 
 router.get("/routes", databaseErrorHandler<Empty, Empty, Empty, {route: string}>(async (req, res) => {
-    const search = req.query.route;
-    if (typeof search !== "string"){
-        return res.json([]);
+    let search = "";
+    if (typeof req.query.route === "string"){
+        search = req.query.route;
     }
 
     const results = await queries.getRoutes(search);
