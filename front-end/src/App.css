@@ -13,5 +13,80 @@ input {
     margin-top: 100px;
 }
   
+/*Temp CSS, will redo near end*/
+.homepage-container {
+    text-align: center;
+    margin-top: 50px;
+}
+  
+.button-container {
+    margin-top: 20px;
+}
+  
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.searchContainer{
+    text-align: center;
+}
+
+.search-bar {
+    width: 600px;
+    padding: 10px;
+    margin: 20px auto;
+    border: 1px solid #ccc;
+    align-items: center ;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    outline: none;
+}
+  
+.search-bar::placeholder {
+    color: #999;
+}
+
+.buses-container {
+    margin-top: 20px;
+    padding: 20px;
+}
+
+.bus-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.bus-card h2 {
+    margin-top: 0;
+}
+
+.schedule-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.schedule-item {
+    border-top: 1px solid #ddd;
+    padding: 5px 0;
+}
+
+.schedule-item:first-child {
+    border-top: none;
+}
+  
 
   

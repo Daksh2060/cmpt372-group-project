@@ -66,9 +66,7 @@ const MapComponent = () => {
               {
                 icon: leafletIcon,
               }
-            ).bindPopup(
-              `<b>${stop_name}</b><br/><a href="">Bus Timetable</a>`
-            );
+            ).bindPopup(`<b>${stop_name}</b><br/><a href="">Bus Timetable</a>`);
             marker.on("popupopen", () => {
               const linkElement = document.querySelector(
                 ".leaflet-popup-content a"
@@ -103,12 +101,15 @@ const MapComponent = () => {
         ref={mapContainer}
         style={{ height: "850px", width: "1650px", margin: "auto" }}
       ></div>
-      <input
-        type="text"
-        value={searchTerm}
-        onChange={handleSearch}
-        placeholder="Filter stops by name..."
-      />
+      <div className="searchContainer">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={handleSearch}
+          placeholder="Filter stops by name..."
+          className="search-bar"
+        />
+      </div>
     </div>
   );
 };

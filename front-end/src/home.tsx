@@ -16,9 +16,9 @@ const HomePage = () => {
   };
 
   return (
-    <div>
+    <div className="homepage-container">
       <h1>Homepage</h1>
-      <div className="new">
+      <div className="button-container">
         <button onClick={handleMap}>GO TO MAP</button>
         <button onClick={handleStaticTimetable}>GO TO STATIC TIME TABLE</button>
         <button onClick={handleLiveTimetable}>GO TO LIVE TIME TABLE</button>

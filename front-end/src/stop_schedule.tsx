@@ -51,17 +51,17 @@ const StopSchedule = () => {
   }, [apiKey]);
 
   return (
-    <div>
+    <div className="buses-container">
       <h1>Buses</h1>
       {buses.map((bus, index) => (
-        <div key={index}>
+        <div className="bus-card" key={index}>
           <h2>Route No: {bus.RouteNo}</h2>
           <p>Route Name: {bus.RouteName}</p>
           <p>Direction: {bus.Direction}</p>
           <h3>Schedules</h3>
-          <ul>
+          <ul className="schedule-list">
             {bus.Schedules.map((schedule, scheduleIndex) => (
-              <li key={scheduleIndex}>
+              <li className="schedule-item" key={scheduleIndex}>
                 <p>Expected Leave Time: {schedule.ExpectedLeaveTime}</p>
               </li>
             ))}
