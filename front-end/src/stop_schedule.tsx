@@ -25,12 +25,12 @@ const StopSchedule = () => {
   //Will hide API key later
   const apiKey = "ekBVRyPIkgOvGpyvEkKE";
 
+  //Use translink API to fetch live data about each stop
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(
           `https://api.translink.ca/rttiapi/v1/stops/${stopCode}/estimates?apikey=${apiKey}`,
-          //`https://api.translink.ca/rttiapi/v1/stops/${stopCode}?apikey=${apiKey}`,
           {
             headers: {
               Accept: "application/json",

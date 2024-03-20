@@ -18,7 +18,10 @@ const MapComponent = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!mapContainer.current) return;
+    //Cancle useEffect if map is already loaded
+    if (!mapContainer.current) {
+      return;
+    }
 
     const leafletMap = L.map(mapContainer.current, {
       preferCanvas: true,
@@ -29,6 +32,7 @@ const MapComponent = () => {
         'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> ',
     }).addTo(leafletMap);
 
+    //Set zoom level on lower mainland
     leafletMap.setMinZoom(11);
     leafletMap.setMaxZoom(17);
 
@@ -40,7 +44,9 @@ const MapComponent = () => {
   }, []);
 
   useEffect(() => {
-    if (!map) return;
+    if (!map){
+      return;
+    }
 
     const leafletIcon = L.icon({
       iconUrl:
@@ -50,6 +56,7 @@ const MapComponent = () => {
 
     const markers = L.markerClusterGroup();
 
+    //Load map data from temp .txt file, will export to database in final version
     fetch(Mapdata)
       .then((response) => response.text())
       .then((text) => {
@@ -85,16 +92,17 @@ const MapComponent = () => {
       .catch((error) => console.error("Error fetching data:", error));
 
     map.addLayer(markers);
-
+    //Remove layers when leaving map
     return () => {
       map.removeLayer(markers);
     };
   }, [map, searchTerm]);
 
+  //Setup filter for map
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
-  //Setup temp css and class names later
+
   return (
     <div>
       <div

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router";
 
 const HomePage = () => {
+
   const navigate = useNavigate();
 
   const handleMap = () => {
@@ -15,6 +16,7 @@ const HomePage = () => {
     navigate("/live");
   };
 
+  //Temp homepage for accessing available components
   return (
     <div className="homepage-container">
       <h1>Homepage</h1>
