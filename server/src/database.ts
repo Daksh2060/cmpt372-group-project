@@ -1,43 +1,57 @@
-import {Pool, PoolConfig} from "pg";
+import {Pool} from "pg";
+import {Connector} from "@google-cloud/cloud-sql-connector";
 import {Request, Response, NextFunction} from "express";
 import {RouteData, RouteDirectionData, StopListData, TripData, StopTimesOptions, StopTimesData} from "./types";
 
-const config: PoolConfig = {
-    user: "postgres",
-    host: "db",
-    password: "root"
-};
+const connector = new Connector();
 
-//const pool = new Pool(config);
-/*
-Set these environment variables
-PGUSER
-PGHOST
-PGPASSWORD
-PGDATABASE
-*/
-const pool = new Pool();
+let pool: Pool;
 
 export async function initializeDatabase(): Promise<void>{
     try {
-        const tables = [
-            `CREATE TABLE IF NOT EXISTS temp (id SERIAL PRIMARY KEY);`,
-            `CREATE TABLE IF NOT EXISTS routes (route_id INTEGER PRIMARY KEY, route_short_name VARCHAR(10), route_long_name VARCHAR(255));`,
-            `CREATE TABLE IF NOT EXISTS trips (trip_id INTEGER PRIMARY KEY, route_id INTEGER, service_id INTEGER, trip_headsign VARCHAR(255), direction_id INTEGER, block_id INTEGER);`,
-            `CREATE TABLE IF NOT EXISTS stops (stop_id INTEGER PRIMARY KEY, stop_code VARCHAR(10), stop_name VARCHAR(255), stop_lat DOUBLE PRECISION, stop_lon DOUBLE PRECISION);`,
-            `CREATE TABLE IF NOT EXISTS times (time_id BIGSERIAL PRIMARY KEY, trip_id INTEGER, stop_id INTEGER, arrival_time INTEGER, departure_time INTEGER, stop_sequence INTEGER);`,
-            `CREATE TABLE IF NOT EXISTS service (service_id BIGSERIAL PRIMARY KEY, service_number INTEGER, service_date DATE);`,
-        ];
-        await Promise.all(tables.map((value) => pool.query(value)));
+        const user = process.env["CLOUD_USER"];
+        const password = process.env["CLOUD_PASSWORD"];
+        const database = process.env["CLOUD_DATABASE"];
 
-        const indexes = [
-            `CREATE INDEX IF NOT EXISTS trips_bull ON trips(route_id, service_id, trip_headsign, direction_id, block_id);`,
-            `CREATE INDEX IF NOT EXISTS stops_bull ON stops(stop_code, stop_name, stop_lat, stop_lon);`,
-            `CREATE INDEX IF NOT EXISTS times_bull ON times(trip_id, stop_id, arrival_time, departure_time, stop_sequence);`,
-            `CREATE INDEX IF NOT EXISTS service_bull ON service(service_number, service_date)`
-        ];
-        await Promise.all(indexes.map((value) => pool.query(value)));
-        console.log("Database initialized");
+        if (user !== undefined && password !== undefined && database !== undefined){
+            const clientOpts = await connector.getOptions({
+                instanceConnectionName: 'hazel-tea-413201:us-west1:static-transit-data',
+                //ipType: 'PUBLIC',
+            });
+            pool = new Pool({
+                ...clientOpts,
+                user: user,
+                password: password,
+                database: database,
+                max: 5
+            });
+
+            const {rows} = await pool.query("SELECT * FROM bull");
+            console.log(rows[0]);
+            console.log("Connected to cloud database");
+        } else{
+            pool = new Pool();
+            console.log("Connected to local database");
+        }
+
+        // const tables = [
+        //     `CREATE TABLE IF NOT EXISTS temp (id SERIAL PRIMARY KEY);`,
+        //     `CREATE TABLE IF NOT EXISTS routes (route_id INTEGER PRIMARY KEY, route_short_name VARCHAR(10), route_long_name VARCHAR(255));`,
+        //     `CREATE TABLE IF NOT EXISTS trips (trip_id INTEGER PRIMARY KEY, route_id INTEGER, service_id INTEGER, trip_headsign VARCHAR(255), direction_id INTEGER, block_id INTEGER);`,
+        //     `CREATE TABLE IF NOT EXISTS stops (stop_id INTEGER PRIMARY KEY, stop_code VARCHAR(10), stop_name VARCHAR(255), stop_lat DOUBLE PRECISION, stop_lon DOUBLE PRECISION);`,
+        //     `CREATE TABLE IF NOT EXISTS times (time_id BIGSERIAL PRIMARY KEY, trip_id INTEGER, stop_id INTEGER, arrival_time INTEGER, departure_time INTEGER, stop_sequence INTEGER);`,
+        //     `CREATE TABLE IF NOT EXISTS service (service_id BIGSERIAL PRIMARY KEY, service_number INTEGER, service_date DATE);`,
+        // ];
+        // await Promise.all(tables.map((value) => pool.query(value)));
+
+        // const indexes = [
+        //     `CREATE INDEX IF NOT EXISTS trips_bull ON trips(route_id, service_id, trip_headsign, direction_id, block_id);`,
+        //     `CREATE INDEX IF NOT EXISTS stops_bull ON stops(stop_code, stop_name, stop_lat, stop_lon);`,
+        //     `CREATE INDEX IF NOT EXISTS times_bull ON times(trip_id, stop_id, arrival_time, departure_time, stop_sequence);`,
+        //     `CREATE INDEX IF NOT EXISTS service_bull ON service(service_number, service_date);`
+        // ];
+        // await Promise.all(indexes.map((value) => pool.query(value)));
+        // console.log("Database initialized");
     }
     catch (error){
         console.error("Error initializing database:", error);
@@ -48,6 +62,10 @@ type ExpressCallback<B, U, L, L_> = (req: Request<B, U, L, L_>, res: Response, n
 export function databaseErrorHandler<ReqParams = Record<string, any>, _ = any, ReqBody = Record<string, any>, Query = Record<string, any>>(callback: ExpressCallback<ReqParams, _, ReqBody, Query>): ExpressCallback<ReqParams, _, ReqBody, Query>{
     // Checks for database errors within a callback function and sends an internal server error response if one occurs
     return (req: Request<ReqParams, _, ReqBody, Query>, res: Response, next: NextFunction) => {
+        if (pool === undefined){
+            res.status(500).send("Error connecting to database.");
+            return;
+        }
         Promise.resolve(callback(req, res, next)).catch((reason) => {
             console.log(reason);
             res.status(500).send("Database error.");

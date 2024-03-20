@@ -21,7 +21,7 @@ type TimesSearchBody = {
     end: string;
     prevTimes: number[];
     firstRoute?: boolean;
-}
+};
 interface TimesData{
     BULL: number;
     startStopName: string;
