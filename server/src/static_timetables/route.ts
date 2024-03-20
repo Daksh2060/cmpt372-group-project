@@ -126,6 +126,12 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
             // Find the earliest time after the current element in prevTimes. When found, advance to the next element in prevTimes.
             transferTimes.push(times[x]);
             i = Math.min(i + 1, prevTimes.length - 1);
+            
+            if (prevTimes[i] < 0){
+                // Setting the previous times to a value below 0 means "get the next trip, no matter what time it leaves at". In this case, always advance to the next trip time.
+                // This is only used for the first route because there are no previous transfer times.
+                x++;
+            }
         } else{
             // Only advance to the next trip time if it does not match the current element in prevTimes. This is because one trip may match multiple elements in prevTimes.
             x++;

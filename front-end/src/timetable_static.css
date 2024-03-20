@@ -5,3 +5,56 @@
 select, button{
     font-size: 1.25em;
 }
+
+input[type="date"]{
+    margin: 0;
+}
+
+#times{
+    display: flex;
+    flex-direction: column;
+    padding: 0.25em;
+    gap: 0.25em;
+    background-color: #000;
+    width: fit-content;
+}
+
+.route{
+    background-color: #00da48;
+    padding: 0.25em;
+    width: fit-content;
+    position: relative;
+}
+
+.route h2{
+    margin: 0;
+    font-weight: normal;
+    padding-bottom: 0.5em;
+}
+
+.route-delete{
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.125em;
+    font-size: 1em;
+}
+
+.time-display{
+    display: flex;
+}
+
+.time-display-stops{
+    display: flex;
+    flex-direction: column;
+    width: 20vw;
+    min-width: 25em;
+    margin-right: 1em;
+}
+
+.time-display-times{
+    display: flex;
+    flex-direction: column;
+    min-width: 4.5em;
+    margin-right: 1em;
+}
