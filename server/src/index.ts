@@ -1,6 +1,5 @@
 import express, {NextFunction, Request, Response} from "express";
 import cors from "cors";
-import waitOn from "wait-on";
 import "dotenv/config";
 
 import {initializeDatabase} from "./database";
@@ -31,10 +30,5 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
-waitOn({ resources: [`tcp:${host}:5432`] }).then(() => {
-    initializeDatabase().then(() => {
-        app.listen(port, host, () => {
-            console.log(`Server running on http://${host}:${port}`);
-        });
-    });
-});
+app.listen(port);
+initializeDatabase();
