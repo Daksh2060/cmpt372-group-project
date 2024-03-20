@@ -30,5 +30,9 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
-app.listen(port);
-initializeDatabase();
+initializeDatabase().then(() => {
+    app.listen(port);
+}).catch((error) => {
+    console.log(error);
+    app.listen(port);
+});
