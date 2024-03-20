@@ -195,10 +195,10 @@ export default function StaticTimetable(){
                     }>Set Stops</button>
                 </div>
             </div>
-            <div className={"error"}>
-                {error}
-            </div>
-            {times.length > 0 && <div id={"times"}>
+            <div className={"error"}>{error}</div>
+            {times.length > 0 &&
+            <>
+            <div id={"times"}>
                 {times.map((value, index) => (
                     <div className={"route"} key={value.BULL}>
                         <h2>{value.times.length > 0 ? value.trip_headsign : `Route ${index + 1}`}</h2>
@@ -217,7 +217,10 @@ export default function StaticTimetable(){
                         </div>
                     </div>
                 ))}
-            </div>}
+            </div>
+            <button onClick={() => {setTimes([]);}}>Remove all trips</button>
+            </>
+            }
         </div>
     );
 }

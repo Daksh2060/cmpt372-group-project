@@ -82,5 +82,7 @@ export interface RealTimeEstimate{
     expectedStart: number;
     actualStart: number;
     endTime: number;
+    startStopName: string;
+    endStopName: string;
     realTimeMessage: string;
 }

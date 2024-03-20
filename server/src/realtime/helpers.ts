@@ -147,6 +147,14 @@ export async function getRealTimeEstimate(routes: UserRoute): Promise<RealTimeEs
             afterTime: 0
         });
 
+        let startStopName = "";
+        let endStopName = "";
+        if (times.length >= 2){
+            // The start and end stops should be the same for all results so it doesn't matter which one is used to get the name
+            startStopName = times[0].stop_name;
+            endStopName = times[1].stop_name;
+        }
+
         const [start, end] = getTravelDuration(times, actualTime);
         const duration = end - start;
         if (start < 0 || end < 0 || start > end){
@@ -168,6 +176,8 @@ export async function getRealTimeEstimate(routes: UserRoute): Promise<RealTimeEs
             expectedStart: expectedTime,
             actualStart: actualTime,
             endTime: actualTime + duration,
+            startStopName: startStopName,
+            endStopName: endStopName,
             realTimeMessage: validMessage
         });
 

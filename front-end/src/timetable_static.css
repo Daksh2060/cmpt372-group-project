@@ -26,6 +26,7 @@ input[type="datetime-local"], input[type="number"]{
     gap: 0.25em;
     background-color: #000;
     width: fit-content;
+    margin-bottom: 1em;
 }
 
 .route{
