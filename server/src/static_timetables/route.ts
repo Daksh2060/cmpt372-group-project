@@ -13,6 +13,7 @@ type TimesSearchBody = {
     start: string;
     end: string;
     prevTimes: number[];
+    firstRoute?: boolean;
 }
 
 const skytrainMatch = new RegExp(/@ Platform \d+/);
@@ -83,9 +84,13 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
     // If the user does not pass in this array, it will use the current time as the default start time
     const t = new Date();
     let prevTimes: number[] = [t.getHours() * 3600 + t.getMinutes() * 60 + t.getSeconds()];
+    let firstRoute = false;
     const [serviceDate, service] = readDate(date, t);
     if (Array.isArray(req.body.prevTimes) && req.body.prevTimes.length >= 1){
         prevTimes = req.body.prevTimes.filter((value) => typeof value === "number");
+    }
+    if (req.body.firstRoute === true){
+        firstRoute = true;
     }
 
     const results = await queries.getStopTimes({
@@ -104,12 +109,11 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
 
     // Group results by trip id and set the start time to the departure time from the start stop and end time to the arrival time from the end stop
     let i = 0;// Index in prevTimes
-    const times: {trip_id: number; trip_headsign: string; startTime: number; endTime: number;}[] = [];
+    const times: {trip_id: number; startTime: number; endTime: number;}[] = [];
     for (let x = 0; x < results.length; x += 2){
         if (results[x].trip_id === results[x + 1].trip_id){
             times.push({
                 trip_id: results[x].trip_id,
-                trip_headsign: results[x].trip_headsign,
                 startTime: results[x].departure_time,
                 endTime: results[x + 1].arrival_time
             });
@@ -127,9 +131,8 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
             transferTimes.push(times[x]);
             i = Math.min(i + 1, prevTimes.length - 1);
             
-            if (prevTimes[i] < 0){
-                // Setting the previous times to a value below 0 means "get the next trip, no matter what time it leaves at". In this case, always advance to the next trip time.
-                // This is only used for the first route because there are no previous transfer times.
+            if (firstRoute){
+                // On the first route in a trip, there are no previous transfer times.
                 x++;
             }
         } else{
@@ -138,7 +141,13 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
         }
     }
 
-    return res.json(transferTimes);
+    // If the user sends the start and end stops in the wrong order, the query automatically corrects it, include those stop names so they can be displayed
+    return res.json({
+        startStopName: results[0].stop_name,
+        endStopName: results[1].stop_name,
+        trip_headsign: results[0].trip_headsign,
+        times: transferTimes
+    });
 }));
 
 router.get("/trips/:trip", databaseErrorHandler<{trip: string}>(async (req, res) => {

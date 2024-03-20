@@ -20,14 +20,15 @@ type TimesSearchBody = {
     start: string;
     end: string;
     prevTimes: number[];
+    firstRoute?: boolean;
 }
 interface TimesData{
     BULL: number;
     startStopName: string;
     endStopName: string;
+    trip_headsign: string;
     times: {
         trip_id: number;
-        trip_headsign: string;
         startTime: number;
         endTime: number;
     }[];
@@ -56,7 +57,7 @@ async function getStops(route: string, direction: string, date: string){
     if (route === ""){
         throw new Error("Select a route.");
     }
-    const res = await fetch(`${SERVER}/routes/${route}/stops?direction=${direction}&date=${date}`);
+    const res = await fetch(`${SERVER}/routes/${route}/stops?direction=${direction}&date=${date.split("T")[0]}`);
     if (!res.ok){
         throw new Error("Could not fetch stops.");
     }
@@ -77,7 +78,8 @@ async function getTimes(route: string, options: TimesSearchBody){
 }
 
 export default function StaticTimetable(){
-    const [date, setDate] = useState<string>("2024-01-01");
+    const [date, setDate] = useState<string>("2024-01-01T00:00");
+    const [timesCount, setTimesCount] = useState<number>(5);
     const [routes, setRoutes] = useState<RoutePreview[]>([]);
     const [selectedRoute, setSelectedRoute] = useState<string>("");
     const [directions, setDirections] = useState<DirectionPreview[]>([]);
@@ -85,14 +87,15 @@ export default function StaticTimetable(){
     const [stops, setStops] = useState<StopPreview[]>([]);
     const [startStop, setStartStop] = useState<string>("");
     const [endStop, setEndStop] = useState<string>("");
-    //const [prevTimes, setPrevTimes] = useState<number[]>([-1, -1, -1, -1, -1]);
     const [times, setTimes] = useState<TimesData[]>([]);
+    const [error, setError] = useState<string>("\u00a0");
 
     const convertTime = (time: number) => {
         return `${Math.floor(time / 3600)}:${`${Math.floor((time % 3600) / 60)}`.padStart(2, "0")}:${`${time % 60}`.padStart(2, "0")}`;
     };
 
     const onRejected = (reason: Error) => {
+        setError(reason.message);
         console.log(reason);
     };
 
@@ -107,68 +110,106 @@ export default function StaticTimetable(){
     return (
         <div>
             <h1>Static Timetable Viewer</h1>
-            <input type={"date"} onChange={(event) => setDate(event.target.value)}/>
-            <div>
-                <select onChange={(event) => setSelectedRoute(event.target.value)}>
-                    <option key={""} value={""}>Select Route</option>
-                    {routes.map((value) => (
-                        <option key={value.name} value={value.name}>{`${value.name} ${value.destinations}`}</option>
-                    ))}
-                </select>
-                <button onClick={() => {getDirections(selectedRoute).then((value) => {setDirections(value); setStops([]);}).catch(onRejected);}}>Set Route</button>
-            </div>
-            <div>
-                <select onChange={(event) => setSelectedDirection(event.target.value)}>
-                    <option key={""} value={""}>Select Direction</option>
-                    {directions.map((value) => (
-                        <option key={`${value.direction_id}${value.trip_headsign}`} value={`${value.direction_id}`}>{value.trip_headsign}</option>
-                    ))}
-                </select>
-                <button onClick={() => {getStops(selectedRoute, selectedDirection, date).then((value) => {setStops(value)}).catch(onRejected);}}>Set Direction</button>
-            </div>
-            <div>
-                <select onChange={(event) => setStartStop(event.target.value)}>
-                    <option key={""} value={"-1"}>Select Start Stop</option>
-                    {stops.map((value) => (
-                        <option key={value.stop_id} value={value.stop_code}>{value.stop_name}</option>
-                    ))}
-                </select>
-                <select onChange={(event) => setEndStop(event.target.value)}>
-                    <option key={""} value={"-1"}>Select End Stop</option>
-                    {stops.map((value) => (
-                        <option key={value.stop_id} value={value.stop_code}>{value.stop_name}</option>
-                    ))}
-                </select>
-                <button onClick={() => {
-                    getTimes(selectedRoute, {
-                        date: date,
-                        direction: parseInt(selectedDirection),
-                        start: startStop,
-                        end: endStop,
-                        prevTimes: [-1, -1, -1, -1, -1]
-                    })
+            <div id={"options"}>
+                <div>
+                    <label htmlFor={"datetime"}>Date</label>
+                    <input id={"datetime"} type={"datetime-local"} onChange={(event) => setDate(event.target.value)}/>
+                </div>
+                <div>
+                    <label htmlFor={"count"}>Number of trips to show</label>
+                    <input id={"count"} type={"number"} value={timesCount > 0 ? timesCount: ""} onChange={(event) => {const value = parseInt(event.target.value); if (!isNaN(value)){setTimesCount(Math.min(20, value));} else{setTimesCount(0);}}}/>
+                </div>
+                <div>
+                    <select onChange={(event) => setSelectedRoute(event.target.value)}>
+                        <option key={""} value={""}>Select Route</option>
+                        {routes.map((value) => (
+                            <option key={value.name} value={value.name}>{`${value.name} ${value.destinations}`}</option>
+                        ))}
+                    </select>
+                    <button onClick={() => {getDirections(selectedRoute)
                     .then((value) => {
-                        const start = stops.findIndex((value) => value.stop_code === startStop);
-                        const end = stops.findIndex((value) => value.stop_code === endStop);
-                        setTimes(times.concat([{BULL: Date.now(), startStopName: (start >= 0 ? stops[start].stop_name : startStop), endStopName: (end >= 0 ? stops[end].stop_name : endStop), times: value}]));
+                        if (value.length > 0){
+                            setDirections(value);
+                            setSelectedDirection(value[0].direction_id);
+                        }
+                        setStops([]);
+                        setError("");
                     })
-                    .catch(onRejected)}
-                }>Set Stops</button>
+                    .catch(onRejected);
+                    }}>Set Route</button>
+                </div>
+                <div>
+                    <select onChange={(event) => setSelectedDirection(event.target.value)}>
+                        {directions.length === 0 && <option key={""} value={""}>Select Direction</option>}
+                        {directions.map((value) => (
+                            <option key={`${value.direction_id}${value.trip_headsign}`} value={`${value.direction_id}`}>{value.trip_headsign}</option>
+                        ))}
+                    </select>
+                    <button onClick={() => {getStops(selectedRoute, selectedDirection, date).then((value) => {if (value.length === 0){throw new Error("No service at the selected time.")} setStops(value); setError("");}).catch(onRejected);}}>Set Direction</button>
+                </div>
+                <div>
+                    <select onChange={(event) => setStartStop(event.target.value)}>
+                        <option key={""} value={"-1"}>Select Start Stop</option>
+                        {stops.map((value) => (
+                            <option key={value.stop_id} value={value.stop_code}>{value.stop_name}</option>
+                        ))}
+                    </select>
+                    <select onChange={(event) => setEndStop(event.target.value)}>
+                        <option key={""} value={"-1"}>Select End Stop</option>
+                        {stops.map((value) => (
+                            <option key={value.stop_id} value={value.stop_code}>{value.stop_name}</option>
+                        ))}
+                    </select>
+                    <button onClick={() => {
+                        const datetime = date.split("T");
+                        if (datetime.length !== 2){
+                            return;
+                        }
+                        const time = datetime[1].split(":").map((value) => parseInt(value));
+                        if (time.length !== 2){
+                            return;
+                        }
+
+                        let prevTimes: number[] = [];
+                        if (times.length > 0){
+                            prevTimes = times[times.length - 1].times.map((value) => value.endTime);
+                        } else{
+                            for (let x = 0; x < timesCount; x++){
+                                prevTimes.push(time[0] * 3600 + time[1] * 60);
+                            }
+                        }
+
+                        getTimes(selectedRoute, {
+                            date: datetime[0],
+                            direction: parseInt(selectedDirection),
+                            start: startStop,
+                            end: endStop,
+                            prevTimes: prevTimes,
+                            firstRoute: times.length === 0
+                        })
+                        .then((value) => {
+                            setTimes(times.concat([{BULL: Date.now(), startStopName: value.startStopName, endStopName: value.endStopName, trip_headsign: value.trip_headsign, times: value.times}]));
+                            setError("");
+                        })
+                        .catch(onRejected)}
+                    }>Set Stops</button>
+                </div>
             </div>
-            <div>{`Start stop: ${startStop}`}</div>
-            <div>{`End stop: ${endStop}`}</div>
-            <div id={"times"}>
+            <div className={"error"}>
+                {error}
+            </div>
+            {times.length > 0 && <div id={"times"}>
                 {times.map((value, index) => (
                     <div className={"route"} key={value.BULL}>
-                        <h2>{value.times.length > 0 ? value.times[0].trip_headsign : `Route ${index + 1}`}</h2>
+                        <h2>{value.times.length > 0 ? value.trip_headsign : `Route ${index + 1}`}</h2>
                         <button className={"route-delete"} onClick={() => setTimes(times.filter((value2) => value.BULL !== value2.BULL))}>Remove</button>
                         <div className={"time-display"}>
                             <div className={"time-display-stops"}>
                                 <div>{value.startStopName}</div>
                                 <div>{value.endStopName}</div>
                             </div>
-                            {value.times.map((trip) => (
-                                <div key={trip.trip_id} className={"time-display-times"}>
+                            {value.times.map((trip, index) => (
+                                <div key={index} className={"time-display-times"}>
                                     <div>{convertTime(trip.startTime)}</div>
                                     <div>{convertTime(trip.endTime)}</div>
                                 </div>
@@ -176,7 +217,7 @@ export default function StaticTimetable(){
                         </div>
                     </div>
                 ))}
-            </div>
+            </div>}
         </div>
     );
 }

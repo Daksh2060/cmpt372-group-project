@@ -44,6 +44,7 @@ export interface StopTimesData{
     trip_headsign: string;
     arrival_time: number;
     departure_time: number;
+    stop_name: string;
 }
 
 // Types for the real-time route finder

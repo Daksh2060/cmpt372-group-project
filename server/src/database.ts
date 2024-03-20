@@ -101,7 +101,7 @@ export const queries = {
         }
         const query = `
         WITH trip_times AS (
-            SELECT trips.trip_id, trips.trip_headsign, times.arrival_time, times.departure_time
+            SELECT trips.trip_id, trips.trip_headsign, times.arrival_time, times.departure_time, stops.stop_name
             FROM routes, trips, stops, times
             WHERE routes.route_id = trips.route_id AND trips.trip_id = times.trip_id AND stops.stop_id = times.stop_id AND
                 routes.route_short_name = $1 AND (trips.service_id = $2 OR trips.service_id IN (SELECT service_number FROM service WHERE service_date = $3)) AND
@@ -112,7 +112,7 @@ export const queries = {
             FROM trip_times
             GROUP BY (trip_id) HAVING COUNT(*) = 2 ORDER BY start_time LIMIT $8
         )
-        SELECT valid_trips.trip_id, trip_times.trip_headsign, trip_times.arrival_time, trip_times.departure_time
+        SELECT valid_trips.trip_id, trip_times.trip_headsign, trip_times.arrival_time, trip_times.departure_time, trip_times.stop_name
         FROM trip_times, valid_trips
         WHERE valid_trips.trip_id = trip_times.trip_id ORDER BY trip_times.trip_id, trip_times.departure_time;`;
         const rows = (await pool.query<StopTimesData>(query, values)).rows;

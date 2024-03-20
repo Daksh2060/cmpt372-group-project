@@ -6,8 +6,17 @@ select, button{
     font-size: 1.25em;
 }
 
-input[type="date"]{
+input[type="datetime-local"], input[type="number"]{
     margin: 0;
+}
+
+#options{
+    margin: 1.5em 0;
+}
+
+#options label{
+    margin-right: 1em;
+    font-size: 1.25em;
 }
 
 #times{
@@ -22,7 +31,6 @@ input[type="date"]{
 .route{
     background-color: #00da48;
     padding: 0.25em;
-    width: fit-content;
     position: relative;
 }
 
@@ -57,4 +65,9 @@ input[type="date"]{
     flex-direction: column;
     min-width: 4.5em;
     margin-right: 1em;
+}
+
+.error{
+    color: #f00;
+    min-height: 2em;
 }
