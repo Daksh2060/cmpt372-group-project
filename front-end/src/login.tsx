@@ -8,7 +8,7 @@ interface LoginResponse {
   token: string;
 }
 async function login(email: string, password: string) {
-  const res = await fetch(`http://${SERVER}/users/login`, {
+  const res = await fetch(`${SERVER}/users/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

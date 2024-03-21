@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
 const SERVER = import.meta.env["VITE_SERVER"];
 async function fetchProfile(token: string) {
-  const res = await fetch(`http://${SERVER}/users/profile`, {
+  const res = await fetch(`${SERVER}/users/profile`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

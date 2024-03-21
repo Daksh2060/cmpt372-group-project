@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const SERVER = import.meta.env["VITE_SERVER"];
 
 async function register(email: string, name: string, password: string) {
-  const res = await fetch(`http://${SERVER}/users/register`, {
+  const res = await fetch(`${SERVER}/users/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
