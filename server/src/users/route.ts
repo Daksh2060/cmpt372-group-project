@@ -13,7 +13,7 @@ router.post("/users/register", databaseErrorHandler<Empty, Empty, {name: string,
     const users = await queries.getUser(email);
 
     if (users.length != 0){ //check if any other user has that email
-        return res.status(400).send("Email is already associated with an account");
+        return res.status(400).json({error:"Email is already associated with an account"});
     }
     try{
         const hash = await bcrypt.hash(password, 10);
@@ -29,12 +29,13 @@ router.post("/users/register", databaseErrorHandler<Empty, Empty, {name: string,
     }
 }));
 router.post("/users/login", databaseErrorHandler<Empty, Empty, {email:string, password:string }>(async(req,res)=>{
+    // console.log(req.body)
     const email = req.body.email;
     const password = req.body.password;
     //check if user exists
     const users = await queries.getUser(email);
     if( users.length == 0){
-        res.status(400).json({error: "User not registered"});
+        return res.status(400).json({error: `User ${email} not registered`});
     }
     try{
         const match = await bcrypt.compare(password, users[0].password);
