@@ -16,6 +16,15 @@ const HomePage = () => {
     navigate("/live");
   };
 
+  const handleRegister = () => {
+    navigate("/register")
+  };
+  const handleLogin= () => {
+    navigate("/login")
+  };
+  const handleProfile= () => {
+    navigate("/profile")
+  };
   //Temp homepage for accessing available components
   return (
     <div className="homepage-container">
@@ -24,6 +33,9 @@ const HomePage = () => {
         <button onClick={handleMap}>GO TO MAP</button>
         <button onClick={handleStaticTimetable}>GO TO STATIC TIME TABLE</button>
         <button onClick={handleLiveTimetable}>GO TO LIVE TIME TABLE</button>
+        <button onClick={handleRegister}>REGISTER</button>
+        <button onClick={handleLogin}>LOGIN</button>
+        <button onClick={handleProfile}>VIEW PROFILE</button>
       </div>
     </div>
   );

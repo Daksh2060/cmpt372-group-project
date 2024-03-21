@@ -22,7 +22,7 @@ function App() {
             <Route path="/schedule/:stopCode" element={<StopSchedule />}></Route>
             <Route path="/login" element={<Login/>}></Route>
             <Route path="/register" element={<Register/>}></Route>
-            <Route path="/user" element={<UserPage/>}></Route>
+            <Route path="/profile" element={<UserPage/>}></Route>
           </Routes>
         </div>
       </div>
