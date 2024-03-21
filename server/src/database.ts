@@ -1,7 +1,7 @@
 import {Pool} from "pg";
 import {Connector} from "@google-cloud/cloud-sql-connector";
 import {Request, Response, NextFunction} from "express";
-import {RouteData, RouteDirectionData, StopListData, TripData, StopTimesOptions, StopTimesData} from "./types";
+import {RouteData, RouteDirectionData, StopListData, TripData, StopTimesOptions, StopTimesData, User} from "./types";
 
 const connector = new Connector();
 
@@ -41,6 +41,7 @@ export async function initializeDatabase(): Promise<void>{
         //     `CREATE TABLE IF NOT EXISTS stops (stop_id INTEGER PRIMARY KEY, stop_code VARCHAR(10), stop_name VARCHAR(255), stop_lat DOUBLE PRECISION, stop_lon DOUBLE PRECISION);`,
         //     `CREATE TABLE IF NOT EXISTS times (time_id BIGSERIAL PRIMARY KEY, trip_id INTEGER, stop_id INTEGER, arrival_time INTEGER, departure_time INTEGER, stop_sequence INTEGER);`,
         //     `CREATE TABLE IF NOT EXISTS service (service_id BIGSERIAL PRIMARY KEY, service_number INTEGER, service_date DATE);`,
+        //     `CREATE TABLE IF NOT EXISTS users (user_id SERIAL PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL UNIQUE, password VARCHAR(255) NOT NULL);`,
         // ];
         // await Promise.all(tables.map((value) => pool.query(value)));
 
@@ -145,5 +146,16 @@ export const queries = {
         const query = `
         SELECT stop_code, stop_name, stop_lat, stop_lon FROM stops WHERE stop_code IS NOT NULL;`;
         return (await pool.query<TripData>(query)).rows;
+    },
+    getUser: async (email: string) =>{
+        const values = [email];
+        const query = `SELECT * FROM users WHERE email= $1;`;
+        return (await pool.query<User>(query, values)).rows;
+    },
+    addUser: async (name: string, email: string, password: string) =>{
+        const values = [name, email, password];
+        const query = `INSERT INTO users (name, email,password) VALUES ($1,$2,$3);`;
+        return (await pool.query(query,values));
+
     }
 };

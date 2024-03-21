@@ -6,6 +6,12 @@ export interface RouteData{
     route_short_name: string;
     route_long_name: string;
 }
+export interface User{
+    user_id: number;
+    name: string;
+    email: string;
+    password: string;
+}
 
 export interface RouteDirectionData{
     direction_id: number;

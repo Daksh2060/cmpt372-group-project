@@ -5,7 +5,7 @@ import "dotenv/config";
 import {initializeDatabase} from "./database";
 import staticTimetables from "./static_timetables/route";
 import realTime from "./realtime/route";
-
+import users from "./users/route"
 const app = express();
 app.disable("x-powered-by");
 
@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(staticTimetables);
 app.use(realTime);
-
+app.use(users)
 app.get("/", (req, res) => {
     // This is just for testing
     res.send("CANNOT\u2800GET\u3164/\u00a0\u200b");
