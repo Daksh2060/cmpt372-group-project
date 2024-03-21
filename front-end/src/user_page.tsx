@@ -29,7 +29,7 @@ function UserPage() {
     const fetchUserProfile = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        setErrorMessage('Token not found in localStorage');
+        setErrorMessage('Token not found');
         return;
       }
 
