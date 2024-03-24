@@ -87,7 +87,7 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
     let firstRoute = false;
     const [serviceDate, service] = readDate(date, t);
     if (Array.isArray(req.body.prevTimes) && req.body.prevTimes.length >= 1){
-        prevTimes = req.body.prevTimes.filter((value) => typeof value === "number");
+        prevTimes = req.body.prevTimes.filter((value) => typeof value === "number").sort((a, b) => a - b);
     }
     if (req.body.firstRoute === true){
         firstRoute = true;
@@ -102,6 +102,28 @@ router.post("/routes/:route/times", databaseErrorHandler<{route: string}, Empty,
         endStop: endStop,
         afterTime: prevTimes[0]
     });
+
+    if (prevTimes[0] < 21600){
+        // If one of the requested start times is before 6:00, check for any late night trips from the previous day
+        const [lastDate, lastService] = readDate(date, t, -24);
+        const lastResults = await queries.getStopTimes({
+            route_short_name: routeName,
+            service_id: lastService,
+            service_date: lastDate,
+            direction_id: direction,
+            startStop: startStop,
+            endStop: endStop,
+            afterTime: 86400
+        });
+        
+        // These trips will have arrival/departure times values from 24:00 to 30:00, mod by 86400 to display the correct time to the user because these trips should be ordered before
+        // trip results from the current day that are 24:00 to 30:00.
+        for (let x = 0; x < lastResults.length; x++){
+            lastResults[x].arrival_time %= 86400;
+            lastResults[x].departure_time %= 86400;
+            results.push(lastResults[x]);
+        }
+    }
     if (results.length === 0){
         // No results mean one of the search options was incorrect
         return res.status(404).send("No stop times matched the search options.");
