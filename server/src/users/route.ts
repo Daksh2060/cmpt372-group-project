@@ -1,5 +1,5 @@
 import express from "express";
-import {databaseErrorHandler, queries} from "../database";
+import {databaseErrorHandler, loginErrorHandler, queries} from "../database";
 import {Empty} from "../types";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
@@ -79,5 +79,10 @@ router.get("/users/profile", databaseErrorHandler<Empty, Empty,Empty>(async (req
         return res.status(401).json({ message: "Unauthorized" });
     }
 }))
+
+router.get("/users/profile1", loginErrorHandler(async (_, res, email) =>{
+    const users = await queries.getUser(email);
+    return res.json({email: users[0].email, name: users[0].name, user_id: users[0].user_id});
+}));
 
 export default router;

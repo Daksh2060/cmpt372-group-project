@@ -1,7 +1,10 @@
 import {Pool} from "pg";
 import {Connector} from "@google-cloud/cloud-sql-connector";
 import {Request, Response, NextFunction} from "express";
+import jwt from "jsonwebtoken";
 import {RouteData, RouteDirectionData, StopListData, TripData, StopTimesOptions, StopTimesData, User} from "./types";
+
+const SECRET_KEY = process.env["SECRET_KEY"] || "default_secret_key";
 
 const connector = new Connector();
 
@@ -68,6 +71,32 @@ export function databaseErrorHandler<ReqParams = Record<string, any>, _ = any, R
             return;
         }
         Promise.resolve(callback(req, res, next)).catch((reason) => {
+            console.log(reason);
+            res.status(500).send("Database error.");
+        });
+    }
+}
+
+export function loginErrorHandler<ReqParams = Record<string, any>, _ = any, ReqBody = Record<string, any>, Query = Record<string, any>>(callback: (req: Request<ReqParams, _, ReqBody, Query>, res: Response, email: string, next: NextFunction) => void): ExpressCallback<ReqParams, _, ReqBody, Query>{
+    return (req: Request<ReqParams, _, ReqBody, Query>, res: Response, next: NextFunction) => {
+        if (pool === undefined){
+            res.status(500).send("Error connecting to database.");
+            return;
+        }
+        const authHeader = req.headers.authorization;
+        if (authHeader === undefined){
+            res.status(401).json({message: "Unauthorized"});
+            return;
+        }
+        const token = authHeader.split(" ")[1];
+        const decodedToken = jwt.verify(token, SECRET_KEY) as {email: string};
+        const email = decodedToken.email;
+        if (typeof email !== "string"){
+            res.status(401).json({message: "Invalid token"});
+            return;
+        }
+
+        Promise.resolve(callback(req, res, email, next)).catch((reason) => {
             console.log(reason);
             res.status(500).send("Database error.");
         });
