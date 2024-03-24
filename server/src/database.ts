@@ -2,7 +2,7 @@ import {Pool} from "pg";
 import {Connector} from "@google-cloud/cloud-sql-connector";
 import {Request, Response, NextFunction} from "express";
 import jwt from "jsonwebtoken";
-import {RouteData, RouteDirectionData, StopListData, TripData, StopTimesOptions, StopTimesData, User} from "./types";
+import {RouteData, RouteDirectionData, StopListData, TripData, StopTimesOptions, StopTimesData, StopScheduleData, User} from "./types";
 
 const SECRET_KEY = process.env["SECRET_KEY"] || "default_secret_key";
 
@@ -175,6 +175,16 @@ export const queries = {
         const query = `
         SELECT stop_code, stop_name, stop_lat, stop_lon FROM stops WHERE stop_code IS NOT NULL;`;
         return (await pool.query<TripData>(query)).rows;
+    },
+    getSchedule: async (options: Pick<StopTimesOptions, "route_short_name" | "service_id" | "service_date"> & {stop: string}) => {
+        const values = [`%${options.route_short_name}%`, options.service_id, options.service_date, options.stop];
+        const query = `
+        SELECT trips.trip_headsign, times.departure_time
+        FROM routes, trips, stops, times
+        WHERE routes.route_id = trips.route_id AND trips.trip_id = times.trip_id AND stops.stop_id = times.stop_id AND
+            routes.route_short_name LIKE $1 AND (trips.service_id = $2 OR trips.service_id IN (SELECT service_number FROM service WHERE service_date = $3)) AND
+            stops.stop_code = $4 ORDER BY departure_time;`;
+        return (await pool.query<StopScheduleData>(query, values)).rows;
     },
     getUser: async (email: string) =>{
         const values = [email];

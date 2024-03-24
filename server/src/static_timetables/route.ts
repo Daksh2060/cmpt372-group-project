@@ -195,4 +195,19 @@ router.get("/stops", databaseErrorHandler(async (req, res) => {
     res.json(filtered);
 }));
 
+router.get("/stops/:stop", databaseErrorHandler<{stop: string}, Empty, Empty, {route: string; date: string;}>(async (req, res) => {
+    const stop = req.params.stop;
+    const date = req.query.date;
+
+    let route = "";
+    if (typeof req.query.route === "string"){
+        route = req.query.route;
+    }
+
+    const [serviceDate, service] = readDate(date, new Date());
+
+    const stops = await queries.getSchedule({route_short_name: route, service_date: serviceDate, service_id: service, stop: stop});
+    res.json(stops);
+}));
+
 export default router;

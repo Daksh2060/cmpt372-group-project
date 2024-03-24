@@ -53,6 +53,8 @@ export interface StopTimesData{
     stop_name: string;
 }
 
+export type StopScheduleData = Pick<StopTimesData, "trip_headsign" | "departure_time">;
+
 // Types for the real-time route finder
 export type UserRoute = {
     route_short_name: string;
